@@ -6,7 +6,7 @@ const argon2 = require("argon2");
 const crypto = require("crypto");
 
 //* convierte la contraseña en un hash
-export function hashear(pwd){
+function hashear(pwd){
 	//recibe la contraseña del usuario y la config que usara argon2 para el hashing
 	return argon2.hash(pwd, {type:argon2.argon2id, memoryCost: 64*1024, timeCost:3, parallelism:1, saltLength:128});
 };
@@ -14,7 +14,7 @@ export function hashear(pwd){
 //* reglas de contraseña
 /* asi aseguramos que los usuarios tengan el primer paso de seguridad bien hecho, regresa
 null si la contraseña cumple todo o el error dependiendo de que falte*/
-export function revisarContrasena(pwd){
+function revisarContrasena(pwd){
 	if(pwd.length < 8) 
 		return "La contraseña debe tener al menos 8 caracteres.";
 	if(!/[A-Z]/.test(pwd)) 
@@ -29,7 +29,7 @@ export function revisarContrasena(pwd){
 };
 
 //* genera una clave de acceso para las familias, por ejemplo PI-7K3M9Q
-export function generarClaveAcceso(){
+function generarClaveAcceso(){
 	const caracteres="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 	let clave="ID-";
 	for(let i=0; i<6; i++){
@@ -38,3 +38,6 @@ export function generarClaveAcceso(){
 	}
 	return clave;
 };
+
+//* funciones que usa index.js 
+module.exports = {hashear, revisarContrasena, generarClaveAcceso};
