@@ -1,6 +1,8 @@
 import jsonServerProvider from "ra-data-json-server";
 
-/*export const dataProvider = jsonServerProvider(
+/*
+! descomentar al acabar de configurar el backend
+export const dataProvider = jsonServerProvider(
   import.meta.env.VITE_JSON_SERVER_URL,
 );
 */
