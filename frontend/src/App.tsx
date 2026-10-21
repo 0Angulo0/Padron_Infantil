@@ -12,6 +12,11 @@ import { PhotoList, PhotoShow, PhotoEdit, PhotoCreate } from "./guia/photos";
 import { AlbumList, AlbumShow, AlbumEdit, AlbumCreate } from "./guia/albums";
 import { TodoList, TodoShow, TodoEdit, TodoCreate } from "./guia/todos";
 
+//^ vistas de Padrón Infantil
+import { Curvas } from "./vistas/curvas";
+import CurvasIcon from '@mui/icons-material/ShowChart';
+
+
 //^ traducción
 import { authProvider } from "./proveedores/authProvider";
 import { i18nProvider } from "./proveedores/i18nProvider";
@@ -28,6 +33,8 @@ export const App = () => (
     <Admin dataProvider={dataProvider} authProvider={authProvider}
         theme={tema}
         dashboard={Dashboard} i18nProvider={i18nProvider} layout={Layout} >
+          
+      <Resource name="curvas" options={{ label: "Curvas de crecimiento" }} list={Curvas} icon={CurvasIcon} />
       <Resource name="posts" list={PostList} show={PostShow} edit={PostEdit} create={PostCreate} icon={PostIcon} />
       <Resource name="users" list={UserList} show={UserShow} edit={UserEdit} create={UserCreate} icon={UserIcon} />
       <Resource name="comments" list={CommentList} show={CommentShow} edit={CommentEdit} create={CommentCreate} icon={CommentIcon} />
