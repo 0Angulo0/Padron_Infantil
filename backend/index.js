@@ -19,10 +19,8 @@ const PORT = process.env.PORT;
 app.use(cors()); 
 app.use(bodyParser.json()); 
 
-//* colecciones que se pueden usar con las rutas de abajo
+//* datos generales de la db, los puse acá por si despues quieren cambiar los permisos o las colecciones
 const COLECCIONES=["usuarios", "tutores", "estancias", "infantes", "mediciones"];
-
-//* roles que pueden crear o editar cada colección.
 const PUEDEN_ESCRIBIR={
 	usuarios: ["admin"],
 	estancias: ["admin"],
@@ -30,25 +28,35 @@ const PUEDEN_ESCRIBIR={
 	infantes: ["admin", "estancia"],
 	mediciones: ["admin", "estancia"],
 };
-
-//* campos que nunca se mandan al navegador
-const OCULTOS={_id:0, passwordHash:0};
+const OCULTOS={_id:0, passwordHash:0}; //este no cambiar por seguridad :)
 
 //* conexion con la db usando los datos de env por seguridad
 async function connectToDB(){
-	let client=new MongoClient(process.env.DB);
+	let client = new MongoClient(process.env.DB);
 	await client.connect();
-	db=client.db();
+	db = client.db();
 	console.log("Conectado a la base de datos :)");
 }
 
 //* campos para la bitacora (log), se lleva en el server
 async function log(sujeto, accion, objeto){
-	let nuevoLog={}
-	nuevoLog["timestamp"]=new Date();
-	nuevoLog["sujeto"]=sujeto;
-	nuevoLog["accion"]=accion;
-	nuevoLog["objeto"]=objeto;
+	let nuevoLog = {}
+	nuevoLog["timestamp"] = new Date();
+	nuevoLog["sujeto"] = sujeto;
+	nuevoLog["accion"] = accion;
+	nuevoLog["objeto"] = objeto;
 	await db.collection("log").insertOne(nuevoLog);
 
 }
+
+
+const options = {
+      key: fs.readFileSync('server.key'),
+      cert: fs.readFileSync('server.crt')
+};
+
+https.createServer(options, app).listen(PORT, async () => {
+		await connectToDB();
+      	console.log('HTTPS Server running on port ' + PORT);
+});
+
