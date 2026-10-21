@@ -10,7 +10,7 @@ import { colores } from "../theme";
 
 type Indicador = "peso" | "talla" | "perimetro";
 
-//? formato de una medición (así debe llegar de la base de datos)
+//formato de una medición (así debe llegar de la base de datos)
 type Medicion = {
   id: number;
   infanteId: number;
@@ -20,17 +20,17 @@ type Medicion = {
   perimetro: number; // cm
 };
 
-//? edades de la tabla de referencia (en años)
+//edades de la tabla de referencia (en años)
 const edades = [1, 1.5, 2, 2.5, 3, 3.5];
 
-//! referencia de ejemplo (después van las tablas oficiales)
+//referencia de ejemplo (después van las tablas oficiales)
 const referencia = {
   peso: { p3: [10.2, 10.8, 11.4, 12.1, 12.9, 13.6], p50: [12.0, 12.7, 13.6, 14.5, 15.3, 16.0], p97: [14.6, 15.3, 16.0, 16.9, 17.7, 18.3] },
   talla: { p3: [68.9, 74.9, 80.0, 84.5, 88.7, 92.0], p50: [74.0, 80.7, 86.0, 91.0, 95.1, 99.0], p97: [79.2, 86.5, 92.9, 97.5, 102.0, 106.0] },
   perimetro: { p3: [42.2, 43.5, 44.5, 45.2, 45.7, 46.1], p50: [44.9, 46.2, 47.2, 47.8, 48.5, 49.0], p97: [47.5, 48.9, 49.9, 50.5, 51.0, 51.5] },
 };
 
-//! datos de ejemplo, se usan si el backend no responde
+//datos de ejemplo, se usan si el backend no responde
 const ejemplo: Medicion[] = [
   { id: 1, infanteId: 1, edad: 1, peso: 10.6, talla: 75.0, perimetro: 45.8 },
   { id: 2, infanteId: 1, edad: 1.5, peso: 12.2, talla: 81.5, perimetro: 47.0 },
@@ -42,7 +42,7 @@ export const Curvas = () => {
   const [indicador, setIndicador] = useState<Indicador>("peso");
   const [verTabla, setVerTabla] = useState(false);
 
-  //& pide las mediciones al backend (recurso "mediciones")
+  //pide las mediciones al backend (recurso "mediciones")
   const { data } = useGetList<Medicion>("mediciones", {
     filter: { infanteId: 1 },
     sort: { field: "edad", order: "ASC" },
@@ -51,13 +51,13 @@ export const Curvas = () => {
 
   const ref = referencia[indicador];
 
-  //? por cada edad de la tabla busca la medición del infante (si no hay, null)
+  //por cada edad de la tabla busca la medición del infante (si no hay, null)
   const valores = edades.map((edad) => {
     const m = mediciones.find((x) => x.edad === edad);
     return m ? m[indicador] : null;
   });
 
-  //? la última medición debe estar entre P3 y P97 de su edad
+  //la última medición debe estar entre P3 y P97 de su edad
   const ultima = mediciones[mediciones.length - 1];
   const i = edades.indexOf(ultima.edad);
   const dentro = i === -1 || (ultima[indicador] >= ref.p3[i] && ultima[indicador] <= ref.p97[i]);
