@@ -6,7 +6,7 @@ const fetchJsonUtils = (url: string, options: fetchUtils.Options = {}) => {
   const headers = new Headers( //agrega una etiqueta, la que traiga y sino se asigna una
     options.headers ?? { Accept: "application/json" },
   );
-  const token = localStorage.getItem("token"); // lo guarda el authProvider al iniciar sesión
+  const token = sessionStorage.getItem("auth"); // lo guarda el authProvider al iniciar sesión
   if (token) {
     headers.set("Authentication", token);
   }
