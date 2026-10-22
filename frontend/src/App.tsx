@@ -1,4 +1,5 @@
-import { Admin, Resource } from "react-admin";
+import { Admin, Resource, CustomRoutes } from "react-admin";
+import { Route } from "react-router-dom"
 import { Layout } from "./Layout";
 import { dataProvider } from "./proveedores/dataProvider";
 import { tema } from "./theme";
@@ -14,6 +15,7 @@ import { InfanteCurvas } from "./vistas/estancia/curvas";
 import { TutorList, TutorShow } from "./vistas/tutor/tutor";
 import { ResumenList, CoordinadorInfanteList } from "./vistas/coordinador/coordinador";
 import { AdminInfanteList, AdminInfanteEdit } from "./vistas/admin/admin";
+import { PrimerAcceso } from "./vistas/tutor/primeracceso";
 
 //^ traducción
 import { authProvider } from "./proveedores/authProvider";
@@ -97,6 +99,9 @@ export const App = () => (
     i18nProvider={i18nProvider}
     layout={Layout}
   >
+  <CustomRoutes noLayout>
+    <Route path="/primeracceso" element={<PrimerAcceso />} />
+  </CustomRoutes>
     {(rol) => pantallasPorRol(rol)}
   </Admin>
 );

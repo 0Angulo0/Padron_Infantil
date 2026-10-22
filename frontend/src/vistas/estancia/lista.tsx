@@ -61,7 +61,7 @@ const EdadField = () => {
 };
 
 export const InfanteList = () => (
-  <List actions={<CreateButton label="Registrar infante" />}>
+  <List actions={<CreateButton label = "Registrar infante" />}>
     <DataTable rowClick="show" bulkActionButtons={false}>
       <DataTable.Col source="matricula" label="Matrícula" />
       <DataTable.Col source="nombre" label="Nombre" />

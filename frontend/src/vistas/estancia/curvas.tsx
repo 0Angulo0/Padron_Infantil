@@ -36,6 +36,25 @@ type Props = {
   lectura: string;
 };
 
+//* IMC = peso (kg) / talla (m)², con un decimal
+// TODO: pasarlo a back
+const calcularImc = (peso: number, tallaCm: number) => Math.round((peso / (tallaCm / 100) ** 2) * 10) / 10;
+
+//* tabla de referencia de IMC para la edad, armada con las dos tablas CDC que sí tenemos
+//^ pesoTalla solo va de 77 a 121.5 cm, así que solo salen las edades en las que las tres tallas caben ahí
+const tablaImc = (tallaEdad: Fila[], pesoTalla: Fila[]): Fila[] => {
+  const min = pesoTalla[0].x;
+  const max = pesoTalla[pesoTalla.length - 1].x;
+  const imcDe = (fila: Fila, campo: "p3" | "p50" | "p97") => {
+    const talla = fila[campo]; // talla de ese percentil a esa edad
+    const peso = percentilEn(pesoTalla, talla, campo); // peso de ese percentil para esa talla
+    return calcularImc(peso, talla);
+  };
+  return tallaEdad
+    .filter((f) => f.p3 >= min && f.p97 <= max)
+    .map((f) => ({ x: f.x, p3: imcDe(f, "p3"), p50: imcDe(f, "p50"), p97: imcDe(f, "p97") }));
+};
+
 export const Grafica = ({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Props) => {
   const min = referencia[0].x;
   const max = referencia[referencia.length - 1].x;
@@ -119,6 +138,7 @@ const Graficas = () => {
   const lista = mediciones ?? [];
   const edad = (m: any) => mesesEntre(infante.fnac, m.fecha);
 
+  //* 1 = hombres, 2 = mujeres. x= valor, p3 = min, p50 = media, p97 = max*/
   return (
     <div>
       <Typography variant="h1">{infante.nombre} {infante.paterno} {infante.materno}</Typography>
@@ -186,12 +206,12 @@ const Graficas = () => {
         lectura="Muestra si la talla es la esperada para su edad (CDC, de 0 a 36 meses)."
       />
       <Grafica
-        titulo="Perímetro cefálico para la edad"
+        titulo="Índice de masa corporal (IMC) para la edad"
         ejeX="Edad (meses)"
-        ejeY="Perímetro cefálico (cm)"
-        referencia={cdc.perimetroEdad[sexo]}
-        puntos={lista.filter((m) => m.perimetroCefalico != null).map((m) => ({ x: edad(m), y: m.perimetroCefalico }))}
-        lectura="Muestra si el crecimiento de la cabeza es el esperado para su edad (CDC, de 0 a 36 meses)."
+        ejeY="IMC (kg/m²)"
+        referencia={tablaImc(cdc.tallaEdad[sexo], cdc.pesoTalla[sexo])}
+        puntos={lista.filter((m) => m.peso != null && m.talla != null).map((m) => ({ x: edad(m), y: calcularImc(m.peso, m.talla) }))}
+        lectura="Muestra si el peso es proporcional a la estatura para su edad. Las curvas de referencia se calcularon con las tablas CDC de talla para la edad y peso para la talla (aproximación, desde los 19.5 meses en niños y 21.5 en niñas)."
       />
     </div>
   );
@@ -201,7 +221,7 @@ const TomarMedidas = () => {
   const infante = useRecordContext();
   const { permissions } = usePermissions();
   // solo estancia y admin pueden capturar
-  if (!infante || (permissions != "estancia" && permissions != "admin")) return null;
+  if (!infante || (permissions != "estancia")) return null;
   return (
     <CreateButton
       resource="mediciones"

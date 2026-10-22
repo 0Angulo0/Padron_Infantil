@@ -15,7 +15,8 @@ export const authProvider : AuthProvider={
       throw new Error("No se pudo conectar con el servidor");
     }
     if (res.status == 403){ // pasa cuando la familia todavía no crea su contraseña
-      throw new Error("Todavía no tienes contraseña. Entra a Primer acceso con tu clave.");
+      sessionStorage.setItem("clavePrimerAcceso", username); // para que la clave ya salga escrita
+      return { redirectTo: "/primeracceso" };
     }
     if (res.status < 200 || res.status >= 300){ // si esta por debajo de 200 o de 300 hacia arriba, esos son los estados de error
       throw new Error("Error en usuario o contraseña");  //no se encontro el usuario o la contraseña está mal
