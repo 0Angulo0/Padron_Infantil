@@ -2,56 +2,53 @@ import { Admin, Resource } from "react-admin";
 import { Layout } from "./Layout";
 import { dataProvider } from "./proveedores/dataProvider";
 import { tema } from "./theme";
-import { Dashboard } from "./guia/dashboard"; //dashboard
+import InfanteIcon from "@mui/icons-material/ChildCare";
+import TutorIcon from "@mui/icons-material/FamilyRestroom";
+import CoordinadorIcon from "@mui/icons-material/Assessment";
 
 //^ vistas de Padrón Infantil
-import { Curvas } from "./vistas/curvas";
-import CurvasIcon from "@mui/icons-material/ShowChart";
-import { Tutor } from "./vistas/tutor";
-import TutorIcon from "@mui/icons-material/FamilyRestroom";
-import { Coordinador } from "./vistas/coordinador";
-import CoordinadorIcon from "@mui/icons-material/Assessment";
-import { Panel } from "./vistas/admin";
-import AdminIcon from "@mui/icons-material/AdminPanelSettings";
-import { MedicionCreate } from "./vistas/captura";
+import { InfanteList } from "./vistas/estancia/lista";
+import { InfanteCreate } from "./vistas/estancia/registro";
+import { MedicionCreate } from "./vistas/estancia/captura";
+import { InfanteCurvas } from "./vistas/estancia/curvas";
+import { TutorList, TutorShow } from "./vistas/tutor/tutor";
+import { ResumenList, CoordinadorInfanteList } from "./vistas/coordinador/coordinador";
+import { AdminInfanteList, AdminInfanteEdit } from "./vistas/admin/admin";
 
 //^ traducción
 import { authProvider } from "./proveedores/authProvider";
 import { i18nProvider } from "./proveedores/i18nProvider";
 
-//* pantallas de cada rol, si no está en en su rol no aparece
-const curvas = (
-  <Resource
-    name = "curvas"
-    options = {{ label: "Curvas de crecimiento" }}
-    list = {Curvas}
-    icon = {CurvasIcon}
-  />
-);
+//* pantallas de cada rol, si no está en su rol no aparece
+//? las curvas son el show de cada infante, se abren dando clic en la fila
 const captura = (
-  <Resource
-    name = "mediciones"
-    options = {{ label: "Captura de medidas" }}
-    create = {MedicionCreate}
-  />
+  <Resource name="mediciones" options={{ label: "Captura de medidas" }} create={MedicionCreate} />
 );
 
 const pantallasPorRol = (rol: string) => {
   if (rol == "tutor") {
     return (
       <Resource
-        name = "tutor"
-        options = {{ label: "Vista del tutor" }}
-        list = {Tutor}
-        icon = {TutorIcon}
+        name="infantes"
+        options={{ label: "Mi hija o hijo" }}
+        list={TutorList}
+        show={TutorShow}
+        icon={TutorIcon}
       />
     );
   }
   if (rol == "estancia") {
     return (
       <>
+        <Resource
+          name="infantes"
+          options={{ label: "Infantes" }}
+          list={InfanteList}
+          create={InfanteCreate}
+          show={InfanteCurvas}
+          icon={InfanteIcon}
+        />
         {captura}
-        {curvas}
       </>
     );
   }
@@ -59,12 +56,18 @@ const pantallasPorRol = (rol: string) => {
     return (
       <>
         <Resource
-          name = "coordinador"
-          options = {{ label: "Vista del coordinador" }}
-          list = {Coordinador}
-          icon = {CoordinadorIcon}
+          name="estancias"
+          options={{ label: "Estancias de mi región" }}
+          list={ResumenList}
+          icon={CoordinadorIcon}
         />
-        {curvas}
+        <Resource
+          name="infantes"
+          options={{ label: "Infantes de mi región" }}
+          list={CoordinadorInfanteList}
+          show={InfanteCurvas}
+          icon={InfanteIcon}
+        />
       </>
     );
   }
@@ -72,12 +75,14 @@ const pantallasPorRol = (rol: string) => {
     return (
       <>
         <Resource
-          name = "admin"
-          options = {{ label: "Panel del administrador" }}
-          list = {Panel}
-          icon = {AdminIcon}
+          name="infantes"
+          options={{ label: "Padrón de infantes" }}
+          list={AdminInfanteList}
+          create={InfanteCreate}
+          edit={AdminInfanteEdit}
+          show={InfanteCurvas}
+          icon={InfanteIcon}
         />
-        {curvas}
         {captura}
       </>
     );
@@ -85,16 +90,14 @@ const pantallasPorRol = (rol: string) => {
   return null; //manda a login
 };
 
-
 export const App = () => (
   <Admin
-    dataProvider = {dataProvider}
-    authProvider = {authProvider}
-    theme = {tema}
-    dashboard = {Dashboard}
-    i18nProvider = {i18nProvider}
-    layout = {Layout}
+    dataProvider={dataProvider}
+    authProvider={authProvider}
+    theme={tema}
+    i18nProvider={i18nProvider}
+    layout={Layout}
   >
-    {(rol) => pantallasPorRol(rol)} 
+    {(rol) => pantallasPorRol(rol)}
   </Admin>
 );

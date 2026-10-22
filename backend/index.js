@@ -70,15 +70,19 @@ async function alcance(sesion, coleccion){
 	if (sesion.rol == "admin"){ //^ admin ve todo, regresa un filtro sin filtro 
 		return {};
 	}
-
 	if (sesion.rol == "tutor"){ //^ tutor solo sus hijos e hijas
 		let tutor = await db.collection("tutores").findOne({id: sesion.id});
 		let infanteIds = tutor.infanteIds;
 		if (coleccion == "infantes"){
 			return {id: {$in: infanteIds}}; //cualquiera de la lista de los ids 
+			/*
+			! se le pidio ayuda a claude para saber porqué no se mostraban los datos, ya que mi línea enterior era
+			! "return {id: infanteIds};" y no se mostraba ningun infante, le pregunte a claude el porqué y me sugirió
+			! el uso de {$in: infanteIds} que le dice a mongodb que busque en todos los ids que vienen en la lista
+			*/
 		}
 		if (coleccion == "mediciones"){
-			return {infanteId: {$in: infanteIds}};
+			return {infanteId: {$in: infanteIds}}; 
 		}
 		if (coleccion == "tutores"){
 			return {id: sesion.id}; // solo él mismo
@@ -87,7 +91,7 @@ async function alcance(sesion, coleccion){
 			let infantes = await db.collection("infantes").find({id: {$in: infanteIds}}).toArray();
 			let estanciaIds = [];
 			for (let i = 0; i < infantes.length; i++){
-				estanciaIds.push(infantes[i].estanciaId);
+				estanciaIds.push(infantes[i].ebdi); 
 			}
 			return {id: {$in: estanciaIds}};
 		}
@@ -106,16 +110,21 @@ async function alcance(sesion, coleccion){
 	}
 
 	if (coleccion == "estancias"){
+		//^ el personal de estancia ve el catálogo completo para poder escoger el destino al transferir a un niño
+		//^ (solo son número, nombre, estado y región; no trae datos de niños)
+		if (sesion.rol == "estancia"){
+			return {};
+		}
 		return {id: {$in: estanciaIds}};
 	}
 	if (coleccion == "infantes"){
-		return {estanciaId: {$in: estanciaIds}};
+		return {ebdi: {$in: estanciaIds}};
 	}
 	if (coleccion == "usuarios"){
 		return {id: sesion.id}; // solo él mismo
 	}
 
-	let infantes = await db.collection("infantes").find({estanciaId: {$in: estanciaIds}}).toArray();
+	let infantes = await db.collection("infantes").find({ebdi: {$in: estanciaIds}}).toArray();
 	let infanteIds = [];
 	let tutorIds = [];
 	for (let i = 0; i < infantes.length; i++){
@@ -131,6 +140,7 @@ async function alcance(sesion, coleccion){
 //& funciones para leer y escribir en la db
 //* filtro con lo que la persona pidio en la URL
 function filtroDeConsulta(query){
+//! se consultó a Claude para mejorar la seguridad del código y sugirio los siguientes cambios:
 	let filtro = {...query}; // copia, para no modificar req.query
 	//se quitan para que mongodb no los tome como campos 
 	delete filtro._sort;
@@ -138,9 +148,15 @@ function filtroDeConsulta(query){
 	delete filtro._start;
 	delete filtro._end;
 	delete filtro.q;
+//! aqui termina los cambios sugeridos para mejorar la seguridad
 	//luego el numero se pasa de texto plano a numero 
 	for (let campo in filtro){  //se revisan los campos que quedaron 
 		let esId = campo == "id" || campo.endsWith("Id"); //si dice lit id o termina en id como estanciaid, es id xd
+		// campos de la tabla padron del socio que también se guardan como número, los agregue asi porque fue despues de que 
+		// vi que hice mal la db lol
+		if (["ebdi", "matricula", "activo", "estatus_servicio", "baja", "motivoBaja", "ebdiAnt"].includes(campo)){
+			esId = true;
+		}
 		if (Array.isArray(filtro[campo])){ //caso 1: si el campo actual tiene varios ids
 			let valores = [];
 			for (let i = 0; i < filtro[campo].length; i++){ //los metemos a valores 
@@ -160,6 +176,8 @@ function filtroDeConsulta(query){
 
 //* lista de registros, sirve para getList, getMany y getManyReference 
 async function getList(coleccion, req, res){
+	//! le pedi ayuda a claude para saber como podia usar el alcance que había hecho antes para revisar los filtros, y siguiendo la 
+	//! misma idea que en $in, me recomendo $and para poder revisar que los datos se encuentren en la db y pasen el alcance
 	//? $and pide que se tengan que cumplir los dos filtros, lo que pidió y lo que tiene permitido
 	let filtro = {$and: [filtroDeConsulta(req.query), await alcance(req.sesion, coleccion)]};
 	let sorter = {}
@@ -204,7 +222,7 @@ async function claveAccesoNueva(){
 //* crea un registro nuevo con los datos del formulario (req.body)
 async function createData(coleccion, req, res){
 	let valores = {...req.body}; // copia de lo que mandó el formulario
-	//se borran los datos que solo pone el server, para evitar que alguien le mueva
+	//se borran los datos que solo pone el server, para evitar que alguien le mueva, viene de la idea sugerida por claude
 	delete valores._id; // id interno de MongoDB
 	delete valores.id; // lo pone nuevoId
 	delete valores.passwordHash; // solo se crea con hashear (seguridad.js)
@@ -225,14 +243,27 @@ async function createData(coleccion, req, res){
 		let infante = await db.collection("infantes").findOne({$and: [{id: valores.infanteId}, await alcance(req.sesion, "infantes")]});
 		if (infante == null)  // no existe el infante dentro de las estancias que tiene la sesion
 			return res.sendStatus(403); //prohibido
+		if (infante.activo != 1) // egresado o dado de baja, ya no se le toman medidas
+			return res.status(409).json({message: "Este infante ya no está inscrito, no se le pueden capturar medidas."});
 		valores.registradoPor = req.sesion.id; //para el log
+		valores.ebdi = infante.ebdi; // estancia donde se tomó la medición (solo como registro, los permisos van por la estancia actual del niño)
 	}
 
 	if (coleccion == "infantes"){ // se da de alta un infante nuevo
 		if (req.sesion.rol == "estancia") {
-			valores.estanciaId = req.sesion.estanciaId;
+			valores.ebdi = req.sesion.estanciaId; 
 		}
 		valores.id = await nuevoId("infantes");
+		// datos que pone el servidor al inscribir, viene de la idea de seguridad de claude
+		valores.usuario = req.sesion.id; // quién lo registró
+		valores.freg = new Date().toLocaleDateString("en-CA", {timeZone: "America/Mexico_City"});
+		valores.estatus_servicio = 1; // inscrito
+		valores.activo = 1;
+		valores.baja = 0;
+		valores.fBaja = null;
+		valores.motivoBaja = null;
+		valores.ebdiAnt = null; // todavía no se ha cambiado de estancia
+		valores.fCambioEbdi_ini = null;
 		if (valores.tutorId){  // si ya existe ese tutor, quiere decir que es son parientes, por lo que se asiga el mismo tutor
 			valores.tutorId = Number(valores.tutorId);
 			await db.collection("tutores").updateOne({id: valores.tutorId}, {$push: {infanteIds: valores.id}});
@@ -264,21 +295,58 @@ async function createData(coleccion, req, res){
 //* edita el registro con ese id usando los datos del formulario 
 async function updateData(coleccion, id, req, res){
 	let filtro = {$and: [{id: id}, await alcance(req.sesion, coleccion)]}; //que el id exista y que la sesion tenga permiso
-	if (await db.collection(coleccion).findOne(filtro) == null){
+	let anterior = await db.collection(coleccion).findOne(filtro); // cómo estaba antes de editar
+	if (anterior == null){
 		return res.sendStatus(404); //no encontrado el filtro que se quiere modificar
 	}
 	let valores = {...req.body}; // copia de lo que mandó el formulario
-	//borra los datos que solo debe hace el server
+	//borra los datos que solo debe hace el server, viene de la idea de seguridad de claude
 	delete valores._id;
 	delete valores.id; // el id es el de la URL, no se puede cambiar
 	delete valores.passwordHash;
 	delete valores.password;
 	delete valores.claveAcceso;
-	//^ el personal de estancia no puede pasar registros a otra estancia, ni cambiar de quién es una medición
 	if (req.sesion.rol == "estancia"){
-		delete valores.estanciaId;
-		delete valores.infanteId;
+		delete valores.infanteId;  // no puede modificar el id del infante
+		if (coleccion != "infantes"){
+			delete valores.ebdi;  // si no está editando a un niño, se borra
+		}
 	}
+
+	if (coleccion == "infantes"){
+		// estos los pone el servidor, no el formulario, viene de la idea de mejora de seguridad de claude
+		delete valores.usuario;
+		delete valores.freg;
+		delete valores.ebdiAnt;
+		delete valores.fCambioEbdi_ini;
+		delete valores.activo;
+		delete valores.estatus_servicio;
+	
+		//^ transferir niños a otra estancia
+		if (valores.ebdi != undefined && Number(valores.ebdi) != anterior.ebdi){  // si se cambio el ebdi y este es diferente al anterior
+			valores.ebdi = Number(valores.ebdi);
+			if (await db.collection("estancias").findOne({id: valores.ebdi}) == null){  //checamos si existe esa nueva estancia en la db
+				return res.status(400).json({message: "La estancia de destino no existe."});
+			}
+			if (anterior.activo != 1){ // si se está intentando cambiar a un niño que ya no esta en la estancia
+				return res.status(409).json({message: "Este infante ya no está inscrito, no se puede transferir."});
+			}
+			valores.ebdiAnt = anterior.ebdi;
+			valores.fCambioEbdi_ini = new Date().toLocaleDateString("en-CA", {timeZone: "America/Mexico_City"});
+			await log(req.sesion.nombre, "transferir infante de EBDI " + anterior.ebdi + " a EBDI " + valores.ebdi, "/infantes/" + id);
+		}
+
+		//^ dar de baja a niños, use esta idea: 1 = egreso por edad, 2 = cambio de domicilio, 3 = decisión de la familia, 4 = otro
+		if (Number(valores.baja) == 1 && anterior.baja != 1){  //se quiere dar de baja a un niño que seguia activo
+			valores.baja = 1;
+			valores.motivoBaja = Number(valores.motivoBaja) || 4; // se usa 4 si no dieron motivo
+			valores.fBaja = valores.fBaja || new Date().toLocaleDateString("en-CA", {timeZone: "America/Mexico_City"});
+			valores.activo = 0;
+			valores.estatus_servicio = valores.motivoBaja == 1 ? 2 : 3;
+			//y para el estatus de servicio use esta idea: 1 = inscrito, 2 = egresado por edad, 3 = baja, salió antes
+		}
+	}
+
 	await db.collection(coleccion).updateOne({id: id}, {"$set": valores});
 	let data = await db.collection(coleccion).findOne({id: id}, {projection: {_id:0, passwordHash:0}});
 	res.json(data);
@@ -348,4 +416,3 @@ https.createServer(options, app).listen(PORT, async () => {
 		await connectToDB();
       	console.log('HTTPS Server running on port ' + PORT);
 });
-
