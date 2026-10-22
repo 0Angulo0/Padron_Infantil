@@ -11,7 +11,7 @@ export const MedicionCreate = () => (
     <SimpleForm>
       <Typography variant="h1">Capturar medidas</Typography>
 
-      <ReferenceInput source="id_infante" reference="infantes" perPage={500}>
+      <ReferenceInput source="infanteId" reference="infantes" perPage={500}>
         <SelectInput
           label="Infante"
           optionText={(i) => `${i.nombre} ${i.paterno} ${i.materno}`}
@@ -43,7 +43,7 @@ export const MedicionCreate = () => (
         validate={[required(), minValue(140, "Mínimo 140 cm"), maxValue(200, "Máximo 200 cm")]}
       />
       <NumberInput
-        source="perimetro_cefalico"
+        source="perimetroCefalico"
         label="Perímetro cefálico (cm)"
         step={0.1}
         helperText="Mide alrededor de la frente."

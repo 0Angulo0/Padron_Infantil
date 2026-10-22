@@ -28,7 +28,7 @@ const Acciones = () => {
         size="small"
         component={Link}
         to="/mediciones/create"
-        state={{ record: { id_infante: infante.id } }}
+        state={{ record: { infanteId: infante.id } }}
       >
         Tomar medidas
       </Button>

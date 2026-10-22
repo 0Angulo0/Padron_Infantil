@@ -40,15 +40,15 @@ export const Grafica = ({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
           <Line
             data={{
               datasets: [
-                { label: "P97", data: linea("p97"), borderColor: colores.grisOscuro, borderDash: [10, 5], pointRadius: 0 },
-                { label: "P50", data: linea("p50"), borderColor: colores.verde, pointRadius: 0 },
-                { label: "P3", data: linea("p3"), borderColor: colores.grisOscuro, borderDash: [2, 4], pointRadius: 0 },
-                { label: "Infante", data: puntos, borderColor: colores.guinda, borderWidth: 4, pointStyle: "rectRot", pointRadius: 7 },
+                { label: "Límite alto (percentil 97)", data: linea("p97"), borderColor: colores.grisOscuro, borderDash: [10, 5], pointRadius: 0 },
+                { label: "Promedio (percentil 50)", data: linea("p50"), borderColor: colores.verde, pointRadius: 0 },
+                { label: "Límite bajo (percentil 3)", data: linea("p3"), borderColor: colores.grisOscuro, borderDash: [2, 4], pointRadius: 0 },
+                { label: "Medidas del infante", data: puntos, borderColor: colores.guinda, backgroundColor: colores.guinda, borderWidth: 4, pointStyle: "rectRot", pointRadius: 7 },
               ],
             }}
             options={{
               maintainAspectRatio: false,
-              plugins: { legend: { display: false } },
+              plugins: { legend: { display: true, position: "bottom" } },
               scales: {
                 x: { type: "linear", title: { display: true, text: ejeX } },
                 y: { title: { display: true, text: ejeY } },
@@ -56,7 +56,6 @@ export const Grafica = ({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
             }}
           />
         </div>
-        <Typography>P97: guiones largos · P50: línea continua · P3: puntos · Infante: línea gruesa con rombos</Typography>
         <Typography sx={{ mb: 1 }}>{lectura}</Typography>
         {fueraDeTabla ? (
           <Alert severity="info" role="status">
@@ -77,13 +76,13 @@ export const Grafica = ({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
 const Graficas = () => {
   const infante = useRecordContext();
   const { data: mediciones } = useGetList("mediciones", {
-    filter: { id_infante: infante?.id },
+    filter: { infanteID: infante?.id },
     sort: { field: "fecha", order: "ASC" },
   });
 
   if (!infante) return null;
 
-  const sexo = infante.genero === "F" ? "2" : "1";
+  const sexo = infante.genero === "M" ? "2" : "1";
   const lista = mediciones ?? [];
   const edad = (m: any) => mesesEntre(infante.fnac, m.fecha);
 
@@ -94,7 +93,7 @@ const Graficas = () => {
         <CardContent>
           <Typography variant="h2">Datos del infante</Typography>
           <Typography>Matrícula: {infante.matricula} · EBDI: {infante.ebdi} · UR: {infante.ur || "—"}</Typography>
-          <Typography>Sexo: {infante.genero === "F" ? "Femenino" : "Masculino"} · CURP: {infante.curp || "—"}</Typography>
+          <Typography>Matrícula: {infante.matricula} · EBDI: {infante.ebdi}</Typography>
           <Typography>
             Nacimiento: {new Date(infante.fnac).toLocaleDateString("es-MX", { timeZone: "UTC" })} · Edad: {edadTexto(infante.fnac)}
           </Typography>
@@ -125,7 +124,7 @@ const Graficas = () => {
                     <TableCell>{Math.floor(edad(m) / 12)} a {Math.floor(edad(m) % 12)} m</TableCell>
                     <TableCell>{m.peso}</TableCell>
                     <TableCell>{m.talla}</TableCell>
-                    <TableCell>{m.perimetro_cefalico}</TableCell>
+                    <TableCell>{m.perimetroCefalico}</TableCell>
                     <TableCell>{m.talla_blanco_familiar ?? "—"}</TableCell>
                   </TableRow>
                 ))}
@@ -155,7 +154,7 @@ const Graficas = () => {
         ejeX="Edad (meses)"
         ejeY="Perímetro cefálico (cm)"
         referencia={cdc.perimetroEdad[sexo]}
-        puntos={lista.map((m) => ({ x: edad(m), y: m.perimetro_cefalico }))}
+        puntos={lista.map((m) => ({ x: edad(m), y: m.perimetroCefalico }))}
         lectura="Muestra si el crecimiento de la cabeza es el esperado para su edad."
       />
     </div>
@@ -171,7 +170,7 @@ const TomarMedidas = () => {
     <CreateButton
       resource="mediciones"
       label="Tomar medidas"
-      state={{ record: { id_infante: infante.id } }}
+      state={{ record: { infanteId: infante.id } }}
     />
   );
 };
