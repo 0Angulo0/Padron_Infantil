@@ -179,7 +179,17 @@ async function getList(coleccion, req, res){
 	//! le pedi ayuda a claude para saber como podia usar el alcance que había hecho antes para revisar los filtros, y siguiendo la 
 	//! misma idea que en $in, me recomendo $and para poder revisar que los datos se encuentren en la db y pasen el alcance
 	//? $and pide que se tengan que cumplir los dos filtros, lo que pidió y lo que tiene permitido
-	let filtro = {$and: [filtroDeConsulta(req.query), await alcance(req.sesion, coleccion)]};
+	let consulta = filtroDeConsulta(req.query);
+	if (coleccion == "infantes" && consulta.region != undefined){
+		let estancias = await db.collection("estancias").find({region: consulta.region}).toArray();
+		let ebdis = [];
+		for (let i = 0; i < estancias.length; i++){
+			ebdis.push(estancias[i].id);
+		}
+		delete consulta.region;
+		consulta.ebdi = {$in: ebdis};
+	}
+	let filtro = {$and: [consulta, await alcance(req.sesion, coleccion)]};
 	let sorter = {}
 	if (req.query._sort){
 		sorter[req.query._sort] =req.query._order == "DESC" ? -1:1; //-1 = reciente -> vieja, 1 = vieja -> recientye

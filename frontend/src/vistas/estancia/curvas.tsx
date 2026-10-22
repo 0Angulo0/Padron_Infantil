@@ -9,8 +9,23 @@ import cdc from "../../datos/cdc.json";
 type Punto = { x: number; y: number };
 type Fila = { x: number; p3: number; p50: number; p97: number };
 
+//* edad en meses entre dos fechas (mes promedio de 30.4375 días, igual que la CDC)
 const mesesEntre = (desde: string, hasta: string) =>
   (new Date(hasta).getTime() - new Date(desde).getTime()) / (1000 * 60 * 60 * 24 * 30.4375);
+
+//* valor de un percentil en x, interpolando entre las dos filas de la tabla que lo rodean
+//  (la tabla cdc viene cada medio mes o cada centímetro, el niño casi nunca cae justo en una fila)
+const percentilEn = (ref: Fila[], x: number, campo: "p3" | "p50" | "p97") => {
+  for (let i = 0; i < ref.length - 1; i++) {
+    const a = ref[i];
+    const b = ref[i + 1];
+    if (x >= a.x && x <= b.x) {
+      const t = (x - a.x) / (b.x - a.x);
+      return a[campo] + t * (b[campo] - a[campo]);
+    }
+  }
+  return ref[ref.length - 1][campo];
+};
 
 type Props = {
   titulo: string;
@@ -22,13 +37,16 @@ type Props = {
 };
 
 export const Grafica = ({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Props) => {
-  const ultimo = puntos[puntos.length - 1];
-  const cercana = ultimo
-    ? referencia.reduce((a, b) => (Math.abs(b.x - ultimo.x) < Math.abs(a.x - ultimo.x) ? b : a))
-    : undefined;
-  const dentro = ultimo && cercana ? ultimo.y >= cercana.p3 && ultimo.y <= cercana.p97 : true;
-  // la tabla cdc no cubre todas las edades/tallas, fuera de ella no se puede decir si está bien
-  const fueraDeTabla = ultimo ? ultimo.x < referencia[0].x || ultimo.x > referencia[referencia.length - 1].x : false;
+  const min = referencia[0].x;
+  const max = referencia[referencia.length - 1].x;
+  // se ordenan por x para que la línea del infante no se cruce
+  const ordenados = [...puntos].sort((a, b) => a.x - b.x);
+  const dentroDeTabla = ordenados.filter((p) => p.x >= min && p.x <= max);
+  const ultimo = puntos[puntos.length - 1]; // la medición más reciente (vienen por fecha)
+  const fueraDeTabla = ultimo ? ultimo.x < min || ultimo.x > max : false;
+  const dentro = ultimo && !fueraDeTabla
+    ? ultimo.y >= percentilEn(referencia, ultimo.x, "p3") && ultimo.y <= percentilEn(referencia, ultimo.x, "p97")
+    : true;
 
   const linea = (campo: "p3" | "p50" | "p97") => referencia.map((f) => ({ x: f.x, y: f[campo] }));
 
@@ -40,34 +58,40 @@ export const Grafica = ({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
           <Line
             data={{
               datasets: [
-                { label: "P97", data: linea("p97"), borderColor: colores.grisOscuro, borderDash: [10, 5], pointRadius: 0 },
-                { label: "P50", data: linea("p50"), borderColor: colores.verde, pointRadius: 0 },
-                { label: "P3", data: linea("p3"), borderColor: colores.grisOscuro, borderDash: [2, 4], pointRadius: 0 },
-                { label: "Infante", data: puntos, borderColor: colores.guinda, borderWidth: 4, pointStyle: "rectRot", pointRadius: 7 },
+                { label: "Límite alto (percentil 97)", data: linea("p97"), borderColor: colores.grisOscuro, borderDash: [10, 5], pointRadius: 0 },
+                { label: "Valor típico (percentil 50)", data: linea("p50"), borderColor: colores.verde, pointRadius: 0 },
+                { label: "Límite bajo (percentil 3)", data: linea("p3"), borderColor: colores.grisOscuro, borderDash: [2, 4], pointRadius: 0 },
+                { label: "Medidas del infante", data: dentroDeTabla, borderColor: colores.guinda, backgroundColor: colores.guinda, borderWidth: 4, pointStyle: "rectRot", pointRadius: 7 },
               ],
             }}
             options={{
               maintainAspectRatio: false,
-              plugins: { legend: { display: false } },
+              plugins: {
+                legend: {
+                  display: true,
+                  position: "bottom",
+                  labels: { usePointStyle: true, pointStyle: "line", pointStyleWidth: 40 },
+                },
+              },
               scales: {
-                x: { type: "linear", title: { display: true, text: ejeX } },
+                // el eje x se queda en el rango de la tabla, así las curvas no se aplastan
+                x: { type: "linear", min, max, title: { display: true, text: ejeX } },
                 y: { title: { display: true, text: ejeY } },
               },
             }}
           />
         </div>
-        <Typography>P97: guiones largos · P50: línea continua · P3: puntos · Infante: línea gruesa con rombos</Typography>
         <Typography sx={{ mb: 1 }}>{lectura}</Typography>
-        {fueraDeTabla ? (
+        {!ultimo ? (
+          <Alert severity="info" role="status">Todavía no hay mediciones</Alert>
+        ) : fueraDeTabla ? (
           <Alert severity="info" role="status">
-            La tabla de referencia va de {referencia[0].x} a {referencia[referencia.length - 1].x}, esta medición queda fuera
+            La tabla de referencia va de {min} a {max}, la medición más reciente queda fuera
           </Alert>
-        ) : ultimo ? (
+        ) : (
           <Alert severity={dentro ? "success" : "warning"} role="status">
             {dentro ? "Dentro del rango esperado" : "Fuera del rango esperado, conviene revisarlo"}
           </Alert>
-        ) : (
-          <Alert severity="info" role="status">Todavía no hay mediciones</Alert>
         )}
       </CardContent>
     </Card>
@@ -76,22 +100,28 @@ export const Grafica = ({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
 
 const Graficas = () => {
   const infante = useRecordContext();
-  const { data: mediciones } = useGetList("mediciones", {
-    filter: { infanteId: infante?.id },
-    sort: { field: "fecha", order: "ASC" },
-  });
+  const { data: mediciones } = useGetList(
+    "mediciones",
+    {
+      filter: { infanteId: infante?.id },
+      sort: { field: "fecha", order: "ASC" },
+      pagination: { page: 1, perPage: 1000 }, // por defecto solo trae 25
+    },
+    { enabled: !!infante },
+  );
   //^ la región (UR) sale de la estancia del infante
   const { data: estancia } = useGetOne("estancias", { id: infante?.ebdi }, { enabled: !!infante });
 
   if (!infante) return null;
 
-  const sexo = infante.genero === "M" ? "2" : "1"; // tablas CDC: 1 = niño, 2 = niña. genero: "M" mujer, "H" hombre
+  // en la data nueva "M" = mujer y "H" = hombre; la cdc usa "1" = niño y "2" = niña
+  const sexo = infante.genero === "M" ? "2" : "1";
   const lista = mediciones ?? [];
   const edad = (m: any) => mesesEntre(infante.fnac, m.fecha);
 
   return (
     <div>
-            <Typography variant="h1">{infante.nombre} {infante.paterno} {infante.materno}</Typography>
+      <Typography variant="h1">{infante.nombre} {infante.paterno} {infante.materno}</Typography>
       <Card sx={{ mb: 2 }}>
         <CardContent>
           <Typography variant="h2">Datos del infante</Typography>
@@ -117,7 +147,6 @@ const Graficas = () => {
                   <TableCell>Peso (kg)</TableCell>
                   <TableCell>Talla (cm)</TableCell>
                   <TableCell>Perímetro cefálico (cm)</TableCell>
-                  <TableCell>Talla blanco familiar (cm)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -127,8 +156,7 @@ const Graficas = () => {
                     <TableCell>{Math.floor(edad(m) / 12)} a {Math.floor(edad(m) % 12)} m</TableCell>
                     <TableCell>{m.peso}</TableCell>
                     <TableCell>{m.talla}</TableCell>
-                    <TableCell>{m.perimetroCefalico}</TableCell>
-                    <TableCell>{m.tallaBlancoFamiliar ?? "—"}</TableCell>
+                    <TableCell>{m.perimetroCefalico ?? "—"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -142,7 +170,7 @@ const Graficas = () => {
         ejeY="Peso (kg)"
         referencia={cdc.pesoTalla[sexo]}
         puntos={lista.map((m) => ({ x: m.talla, y: m.peso }))}
-        lectura="Muestra si el peso es adecuado para la estatura."
+        lectura="Muestra si el peso es adecuado para la estatura (CDC, de 77 a 121.5 cm)."
       />
       <Grafica
         titulo="Talla para la edad"
@@ -150,15 +178,15 @@ const Graficas = () => {
         ejeY="Talla (cm)"
         referencia={cdc.tallaEdad[sexo]}
         puntos={lista.map((m) => ({ x: edad(m), y: m.talla }))}
-        lectura="Muestra si la talla es la esperada para su edad."
+        lectura="Muestra si la talla es la esperada para su edad (CDC, de 0 a 36 meses)."
       />
       <Grafica
         titulo="Perímetro cefálico para la edad"
         ejeX="Edad (meses)"
         ejeY="Perímetro cefálico (cm)"
         referencia={cdc.perimetroEdad[sexo]}
-        puntos={lista.map((m) => ({ x: edad(m), y: m.perimetroCefalico }))}
-        lectura="Muestra si el crecimiento de la cabeza es el esperado para su edad."
+        puntos={lista.filter((m) => m.perimetroCefalico != null).map((m) => ({ x: edad(m), y: m.perimetroCefalico }))}
+        lectura="Muestra si el crecimiento de la cabeza es el esperado para su edad (CDC, de 0 a 36 meses)."
       />
     </div>
   );
