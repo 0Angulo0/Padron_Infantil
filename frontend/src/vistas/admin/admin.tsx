@@ -1,7 +1,7 @@
 import {
   List, DataTable, DateField, EditButton, CreateButton, TopToolbar,
   Edit, SimpleForm, Toolbar, SaveButton,
-  TextInput, NumberInput, DateInput, SelectInput, required, maxLength,
+  TextInput, NumberInput, DateInput, SelectInput, required, maxLength, minValue, maxValue,
 } from "react-admin";
 import { RegionField, regiones } from "../estancia/lista";
 
@@ -53,6 +53,21 @@ export const AdminInfanteEdit = () => (
         validate={required()}
       />
       <TextInput source="curp" label="CURP" validate={maxLength(18)} />
+      {/* al guardar, el backend vuelve a calcular la talla blanco familiar con estas dos y el sexo */}
+      <NumberInput
+        source="tallaMama"
+        label="Talla de la mamá (cm)"
+        step={0.1}
+        helperText="Vacía si no se conoce (se usa 162 cm, la media en México)."
+        validate={[minValue(110, "Mínimo 110 cm"), maxValue(220, "Máximo 220 cm")]}
+      />
+      <NumberInput
+        source="tallaPapa"
+        label="Talla del papá (cm)"
+        step={0.1}
+        helperText="Vacía si no se conoce (se usa 170 cm, la media en México)."
+        validate={[minValue(110, "Mínimo 110 cm"), maxValue(220, "Máximo 220 cm")]}
+      />
       <DateInput source="fnac" label="Fecha de nacimiento" validate={required()} />
       {/* activo y estatus_servicio los calcula el backend al dar de baja */}
       <SelectInput source="baja" label="Baja" choices={[{ id: 0, name: "No" }, { id: 1, name: "Sí" }]} />
