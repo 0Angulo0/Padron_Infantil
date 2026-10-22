@@ -48,15 +48,7 @@ export const MedicionCreate = () => (
         step={0.1}
         helperText="Mide de pie si ya camina."
         validate={[required(), minValue(40, "La talla debe ser de al menos 40 cm"), maxValue(130, "La talla no puede pasar de 130 cm")]}
-      />
-      <NumberInput
-        source="tallaBlancoFamiliar"
-        label="Talla blanco familiar (cm)"
-        step={0.1}
-        helperText="Talla estimada a partir de la estatura de los padres."
-        validate={[required(), minValue(140, "Debe ser de al menos 140 cm"), maxValue(210, "No puede pasar de 210 cm")]}
-      />
-      <NumberInput
+      />      <NumberInput
         source="perimetroCefalico"
         label="Perímetro cefálico (cm)"
         step={0.1}

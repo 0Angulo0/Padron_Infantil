@@ -23,13 +23,6 @@ type Medicion = {
   perimetro: number;
 };
 
-type Historia = {
-  id: number;
-  infanteId: number;
-  fecha: string;
-  nota: string;
-};
-
 type Punto = { x: number; bajo: number; medio: number; alto: number };
 
 const infanteId = 1;
@@ -46,11 +39,6 @@ const medicionesEjemplo: Medicion[] = [
   { id: 2, infanteId: 1, fecha: "2025-09-10", peso: 12.2, talla: 81.5, perimetro: 47.0 },
   { id: 3, infanteId: 1, fecha: "2026-03-10", peso: 13.1, talla: 86.5, perimetro: 48.0 },
   { id: 4, infanteId: 1, fecha: "2026-09-10", peso: 14.4, talla: 91.4, perimetro: 49.2 },
-];
-
-const historiaEjemplo: Historia[] = [
-  { id: 1, infanteId: 1, fecha: "2025-03-10", nota: "Ingreso a la estancia. Sin alergias conocidas." },
-  { id: 2, infanteId: 1, fecha: "2026-02-15", nota: "Esquema de vacunación al corriente." },
 ];
 
 const pesoParaTalla: Punto[] = [
@@ -102,14 +90,9 @@ export const Tutor = () => {
     filter: { infanteId: infanteId },
     sort: { field: "fecha", order: "ASC" },
   });
-  const { data: dataHistoria } = useGetList<Historia>("historiaClinica", {
-    filter: { infanteId: infanteId },
-    sort: { field: "fecha", order: "DESC" },
-  });
 
   const infante = dataInfante ? dataInfante : infanteEjemplo;
   const mediciones = dataMediciones && dataMediciones.length > 0 ? dataMediciones : medicionesEjemplo;
-  const historia = dataHistoria && dataHistoria.length > 0 ? dataHistoria : historiaEjemplo;
 
   const nombre = infante.nombre.split(" ")[0];
   const edadDe = (m: Medicion) => calcularEdad(infante.fechaNacimiento, m.fecha);
@@ -253,32 +236,6 @@ export const Tutor = () => {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent>
-          <Typography variant="h2">Historial de salud</Typography>
-          {historia.length === 0 ? (
-            <Typography>Todavía no hay notas de salud registradas</Typography>
-          ) : (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Fecha</TableCell>
-                  <TableCell>Nota</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {historia.map((h) => (
-                  <TableRow key={h.id}>
-                    <TableCell>{h.fecha}</TableCell>
-                    <TableCell>{h.nota}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
         </CardContent>
       </Card>
     </div>
