@@ -1,12 +1,17 @@
-import jsonServerProvider from "ra-data-json-server";
+import { fetchUtils } from "react-admin";  // herramienta de react para hacer peticiones al server
+import jsonServerProvider from "ra-data-json-server";  // hace las peticiones
 
-/*
-! descomentar al acabar de configurar el backend
-export const dataProvider = jsonServerProvider(
-  import.meta.env.VITE_JSON_SERVER_URL,
-);
-*/
+//* agrega el token de la sesión a cada petición
+const fetchJsonUtils = (url: string, options: fetchUtils.Options = {}) => {
+  const headers = new Headers( //agrega una etiqueta, la que traiga y sino se asigna una
+    options.headers ?? { Accept: "application/json" },
+  );
+  const token = localStorage.getItem("token"); // lo guarda el authProvider al iniciar sesión
+  if (token) {
+    headers.set("Authentication", token);
+  }
+  return fetchUtils.fetchJson(url, { ...options, headers });  //manda la peticion 
+};
 
-export const dataProvider = jsonServerProvider(
-  "https://jsonplaceholder.typicode.com",
-);
+//* la URL del backend sale del .env 
+export const dataProvider = jsonServerProvider(import.meta.env.VITE_JSON_SERVER_URL, fetchJsonUtils);
