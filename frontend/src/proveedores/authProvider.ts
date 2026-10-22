@@ -22,21 +22,30 @@ export const authProvider : AuthProvider={
     }
     const auth = await res.json();
     sessionStorage.setItem("auth", auth.token);  //se asigna el token a la sesion
-    sessionStorage.setItem("identity", JSON.stringify({"id":auth.id, "rol":auth.rol })) // se pone el id de la sesion para los permisos
+    sessionStorage.setItem("identity", JSON.stringify({"id":auth.id, "rol":auth.rol })) // se pone el id y rol de la sesion para los permisos
     return Promise.resolve();
   },
+
   logout:() => {
-    sessionStorage.removeItem("auth")  //quita el token y id
+    sessionStorage.removeItem("auth")  //quita el token, id y rol
     sessionStorage.removeItem("identity");
     return Promise.resolve();
   },
+
   checkAuth:() => {
     return sessionStorage.getItem("auth") ? Promise.resolve() : Promise.reject()  // paso o no la autenticacion?
   },
+
+  getPermissions:() => {
+    // regresa el rol de la sesión ("admin", "coordinador", "estancia" o "tutor")
+    const identity = sessionStorage.getItem("identity");
+    return identity ? Promise.resolve(JSON.parse(identity).rol) : Promise.reject();
+  },
+
   checkError:(error) => {
     const status = error.status;
     if(status == 401){ // si es unauthorized
-      sessionStorage.removeItem("auth") //se borra el token y id
+      sessionStorage.removeItem("auth") //se borra el token, id y rol
       sessionStorage.removeItem("identity");
       return Promise.reject();  //se marca como fallido
     }
