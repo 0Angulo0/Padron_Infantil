@@ -26,4 +26,6 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+*.sw?.env
+server.key
+server.crt
