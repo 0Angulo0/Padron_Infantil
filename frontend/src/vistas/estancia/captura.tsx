@@ -37,13 +37,6 @@ export const MedicionCreate = () => (
         validate={[required(), minValue(40, "Mínimo 40 cm"), maxValue(130, "Máximo 130 cm")]}
       />
       <NumberInput
-        source="tallaBlancoFamiliar"
-        label="Talla blanco familiar (cm)"
-        step={0.1}
-        helperText="Estatura esperada según la de la madre y el padre."
-        validate={[required(), minValue(140, "Mínimo 140 cm"), maxValue(200, "Máximo 200 cm")]}
-      />
-      <NumberInput
         source="perimetroCefalico"
         label="Perímetro cefálico (cm)"
         step={0.1}

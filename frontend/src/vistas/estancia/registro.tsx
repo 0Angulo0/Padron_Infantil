@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Create, SimpleForm, TextInput, DateInput, SelectInput, NumberInput, required, maxLength, usePermissions,
+  Create, SimpleForm, TextInput, DateInput, SelectInput, NumberInput, required, maxLength, minValue, maxValue, usePermissions,
 } from "react-admin";
 import { Typography, Alert, Button } from "@mui/material";
 
@@ -42,6 +42,21 @@ export const InfanteCreate = () => {
           validate={required()}
         />
         <TextInput source="curp" label="CURP" validate={maxLength(18)} />
+        {/* con estas dos el backend calcula la talla blanco familiar; si no se conocen se usa la media de México */}
+        <NumberInput
+          source="tallaMama"
+          label="Talla de la mamá (cm)"
+          step={0.1}
+          helperText="Si no la conoces, déjala vacía y se usa la talla promedio en México (162 cm)."
+          validate={[minValue(110, "Mínimo 110 cm"), maxValue(220, "Máximo 220 cm")]}
+        />
+        <NumberInput
+          source="tallaPapa"
+          label="Talla del papá (cm)"
+          step={0.1}
+          helperText="Si no la conoces, déjala vacía y se usa la talla promedio en México (170 cm)."
+          validate={[minValue(110, "Mínimo 110 cm"), maxValue(220, "Máximo 220 cm")]}
+        />
         <TextInput source="tutorNombre" label="Padre, madre o tutor" validate={required()} />
         <TextInput source="tutorCiudad" label="Ciudad" validate={required()} />
       </SimpleForm>
