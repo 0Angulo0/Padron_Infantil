@@ -64,7 +64,6 @@ const pantallasPorRol = (rol: string) => {
           list = {Coordinador}
           icon = {CoordinadorIcon}
         />
-        {curvas}
       </>
     );
   }
@@ -77,8 +76,6 @@ const pantallasPorRol = (rol: string) => {
           list = {Panel}
           icon = {AdminIcon}
         />
-        {curvas}
-        {captura}
       </>
     );
   }
