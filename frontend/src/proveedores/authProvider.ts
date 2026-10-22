@@ -37,7 +37,6 @@ export const authProvider : AuthProvider={
   },
 
   getPermissions:() => {
-    // regresa el rol de la sesión ("admin", "coordinador", "estancia" o "tutor")
     const identity = sessionStorage.getItem("identity");
     return identity ? Promise.resolve(JSON.parse(identity).rol) : Promise.reject();
   },

@@ -12,7 +12,6 @@ const MenuPorRol = () => {
   const { permissions } = usePermissions();
   return (
     <Menu>
-      <Menu.DashboardItem />
       <Menu.ResourceItems />
       {(permissions == "estancia" || permissions == "admin") && (
         <Menu.Item to="/mediciones/create" primaryText="Captura de medidas" leftIcon={<AddchartIcon />} />

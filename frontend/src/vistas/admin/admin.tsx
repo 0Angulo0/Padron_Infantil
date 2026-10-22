@@ -47,7 +47,7 @@ export const AdminInfanteEdit = () => (
       <SelectInput
         source="genero"
         label="Sexo"
-        choices={[{ id: "F", name: "Femenino" }, { id: "M", name: "Masculino" }]}
+        choices={[{ id: "M", name: "Mujer" }, { id: "H", name: "Hombre" }]} // como en la CURP y en la tabla padron del socio
         validate={required()}
       />
       <TextInput source="curp" label="CURP" validate={maxLength(18)} />

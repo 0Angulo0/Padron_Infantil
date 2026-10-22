@@ -26,7 +26,7 @@ export const TutorShow = () => (
       <ReferenceManyField
         label="Historial de mediciones"
         reference="mediciones"
-        target="id_infante"
+        target="infanteId"
         sort={{ field: "fecha", order: "DESC" }}
       >
         <DataTable bulkActionButtons={false}>
@@ -35,7 +35,7 @@ export const TutorShow = () => (
           </DataTable.Col>
           <DataTable.Col source="peso" label="Peso (kg)" />
           <DataTable.Col source="talla" label="Talla (cm)" />
-          <DataTable.Col source="perimetro_cefalico" label="Perímetro cefálico (cm)" />
+          <DataTable.Col source="perimetroCefalico" label="Perímetro cefálico (cm)" />
         </DataTable>
       </ReferenceManyField>
     </SimpleShowLayout>

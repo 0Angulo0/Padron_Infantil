@@ -1,6 +1,7 @@
-import { List, DataTable, DateField, CreateButton, useRecordContext } from "react-admin";
+import { List, DataTable, DateField, SelectField, CreateButton, useRecordContext } from "react-admin";
 import { Link } from "react-router-dom";
 import { Button } from "@mui/material";
+
 
 //* edad en años y meses a partir de la fecha de nacimiento
 export const edadTexto = (fnac: string) => {
@@ -28,7 +29,7 @@ const Acciones = () => {
         size="small"
         component={Link}
         to="/mediciones/create"
-        state={{ record: { id_infante: infante.id } }}
+        state={{ record: { infanteId: infante.id } }}
       >
         Tomar medidas
       </Button>
@@ -48,7 +49,9 @@ export const InfanteList = () => (
       <DataTable.Col source="nombre" label="Nombre" />
       <DataTable.Col source="paterno" label="Apellido paterno" />
       <DataTable.Col source="materno" label="Apellido materno" />
-      <DataTable.Col source="genero" label="Sexo" />
+      <DataTable.Col source="genero" label="Sexo">
+        <SelectField source="genero" choices={[{ id: "M", name: "Mujer" }, { id: "H", name: "Hombre" }]} />
+      </DataTable.Col>
       <DataTable.Col source="fnac" label="Nacimiento">
         <DateField source="fnac" locales="es-MX" options={{ timeZone: "UTC" }} />
       </DataTable.Col>

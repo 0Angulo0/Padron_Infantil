@@ -11,7 +11,8 @@ export const MedicionCreate = () => (
     <SimpleForm>
       <Typography variant="h1">Capturar medidas</Typography>
 
-      <ReferenceInput source="id_infante" reference="infantes" perPage={500}>
+      {/* solo los inscritos: a un niño dado de baja el backend no le deja capturar medidas */}
+      <ReferenceInput source="infanteId" reference="infantes" perPage={500} filter={{ activo: 1 }}>
         <SelectInput
           label="Infante"
           optionText={(i) => `${i.nombre} ${i.paterno} ${i.materno}`}
@@ -36,14 +37,14 @@ export const MedicionCreate = () => (
         validate={[required(), minValue(40, "Mínimo 40 cm"), maxValue(130, "Máximo 130 cm")]}
       />
       <NumberInput
-        source="talla_blanco_familiar"
+        source="tallaBlancoFamiliar"
         label="Talla blanco familiar (cm)"
         step={0.1}
         helperText="Estatura esperada según la de la madre y el padre."
         validate={[required(), minValue(140, "Mínimo 140 cm"), maxValue(200, "Máximo 200 cm")]}
       />
       <NumberInput
-        source="perimetro_cefalico"
+        source="perimetroCefalico"
         label="Perímetro cefálico (cm)"
         step={0.1}
         helperText="Mide alrededor de la frente."

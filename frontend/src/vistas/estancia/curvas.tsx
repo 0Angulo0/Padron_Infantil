@@ -77,13 +77,13 @@ export const Grafica = ({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
 const Graficas = () => {
   const infante = useRecordContext();
   const { data: mediciones } = useGetList("mediciones", {
-    filter: { id_infante: infante?.id },
+    filter: { infanteId: infante?.id },
     sort: { field: "fecha", order: "ASC" },
   });
 
   if (!infante) return null;
 
-  const sexo = infante.genero === "F" ? "2" : "1";
+  const sexo = infante.genero === "M" ? "2" : "1"; // tablas CDC: 1 = niño, 2 = niña. genero: "M" mujer, "H" hombre
   const lista = mediciones ?? [];
   const edad = (m: any) => mesesEntre(infante.fnac, m.fecha);
 
@@ -94,7 +94,7 @@ const Graficas = () => {
         <CardContent>
           <Typography variant="h2">Datos del infante</Typography>
           <Typography>Matrícula: {infante.matricula} · EBDI: {infante.ebdi} · UR: {infante.ur || "—"}</Typography>
-          <Typography>Sexo: {infante.genero === "F" ? "Femenino" : "Masculino"} · CURP: {infante.curp || "—"}</Typography>
+          <Typography>Sexo: {infante.genero === "M" ? "Mujer" : "Hombre"} · CURP: {infante.curp || "—"}</Typography>
           <Typography>
             Nacimiento: {new Date(infante.fnac).toLocaleDateString("es-MX", { timeZone: "UTC" })} · Edad: {edadTexto(infante.fnac)}
           </Typography>
@@ -125,8 +125,8 @@ const Graficas = () => {
                     <TableCell>{Math.floor(edad(m) / 12)} a {Math.floor(edad(m) % 12)} m</TableCell>
                     <TableCell>{m.peso}</TableCell>
                     <TableCell>{m.talla}</TableCell>
-                    <TableCell>{m.perimetro_cefalico}</TableCell>
-                    <TableCell>{m.talla_blanco_familiar ?? "—"}</TableCell>
+                    <TableCell>{m.perimetroCefalico}</TableCell>
+                    <TableCell>{m.tallaBlancoFamiliar ?? "—"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -155,7 +155,7 @@ const Graficas = () => {
         ejeX="Edad (meses)"
         ejeY="Perímetro cefálico (cm)"
         referencia={cdc.perimetroEdad[sexo]}
-        puntos={lista.map((m) => ({ x: edad(m), y: m.perimetro_cefalico }))}
+        puntos={lista.map((m) => ({ x: edad(m), y: m.perimetroCefalico }))}
         lectura="Muestra si el crecimiento de la cabeza es el esperado para su edad."
       />
     </div>
@@ -171,7 +171,7 @@ const TomarMedidas = () => {
     <CreateButton
       resource="mediciones"
       label="Tomar medidas"
-      state={{ record: { id_infante: infante.id } }}
+      state={{ record: { infanteId: infante.id } }}
     />
   );
 };
