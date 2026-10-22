@@ -1,8 +1,9 @@
-import { Admin, Resource, CustomRoutes } from "react-admin";
-import { Route } from "react-router-dom"
+import { Admin, Resource, CustomRoutes, Login, LoginForm } from "react-admin"; // ← NUEVO: Login, LoginForm
+import { Route } from "react-router-dom";
 import { Layout } from "./Layout";
 import { dataProvider } from "./proveedores/dataProvider";
 import { tema } from "./theme";
+import logo from "./recursos/Logo_gobierno2026.jpeg"; // ← NUEVO
 import InfanteIcon from "@mui/icons-material/ChildCare";
 import TutorIcon from "@mui/icons-material/FamilyRestroom";
 import CoordinadorIcon from "@mui/icons-material/Assessment";
@@ -16,7 +17,6 @@ import { TutorList, TutorShow } from "./vistas/tutor/tutor";
 import { ResumenList, CoordinadorInfanteList } from "./vistas/coordinador/coordinador";
 import { AdminInfanteList, AdminInfanteEdit } from "./vistas/admin/admin";
 import { PrimerAcceso } from "./vistas/tutor/primeracceso";
-import { MoverEbdi } from "./vistas/estancia/moveredbi";
 
 //^ traducción
 import { authProvider } from "./proveedores/authProvider";
@@ -26,13 +26,6 @@ import { i18nProvider } from "./proveedores/i18nProvider";
 //? las curvas son el show de cada infante, se abren dando clic en la fila
 const captura = (
   <Resource name="mediciones" options={{ label: "Captura de medidas" }} create={MedicionCreate} />
-);
-
-//? mover de estancia o dar de baja: solo estancia y admin (el backend también lo revisa)
-const movimiento = (
-  <CustomRoutes>
-    <Route path="/infantes/:id/movimiento" element={<MoverEbdi />} />
-  </CustomRoutes>
 );
 
 const pantallasPorRol = (rol: string) => {
@@ -56,11 +49,9 @@ const pantallasPorRol = (rol: string) => {
           list={InfanteList}
           create={InfanteCreate}
           show={InfanteCurvas}
-          edit={AdminInfanteEdit}
           icon={InfanteIcon}
         />
         {captura}
-        {movimiento}
       </>
     );
   }
@@ -94,13 +85,18 @@ const pantallasPorRol = (rol: string) => {
           show={InfanteCurvas}
           icon={InfanteIcon}
         />
-        {captura}
-        {movimiento}
       </>
     );
   }
   return null; //manda a login
 };
+
+const LoginConLogo = () => (
+  <Login sx={{ "& .RaLogin-avatar": { display: "none" } }}>
+        <img src={logo} alt="Gobierno de México" style={{ display: "block", width: 260, margin: "16px auto 0" }}/>
+    <LoginForm />
+  </Login>
+);
 
 export const App = () => (
   <Admin
@@ -109,10 +105,11 @@ export const App = () => (
     theme={tema}
     i18nProvider={i18nProvider}
     layout={Layout}
+    loginPage={LoginConLogo} 
   >
-  <CustomRoutes noLayout>
-    <Route path="/primeracceso" element={<PrimerAcceso />} />
-  </CustomRoutes>
+    <CustomRoutes noLayout>
+      <Route path="/primer-acceso" element={<PrimerAcceso />} />
+    </CustomRoutes>
     {(rol) => pantallasPorRol(rol)}
   </Admin>
 );
