@@ -65,6 +65,29 @@ function puedeEscribir(sesion, coleccion){
 	return PUEDEN_ESCRIBIR[coleccion].includes(sesion.rol);
 }
 
+//* talla blanco familiar: la estatura que se espera de adulto según la de la mamá y el papá (en cm)
+const TALLA_MEDIA_MAMA = 162;
+const TALLA_MEDIA_PAPA = 170;
+function calcularTallaBlanco(tallaMama, tallaPapa, genero){
+	let mama = tallaMama == null ? TALLA_MEDIA_MAMA : tallaMama; //se usan datos predeterminados si no hay un dato
+	let papa = tallaPapa == null ? TALLA_MEDIA_PAPA : tallaPapa;  // con la media de México
+	let ajuste = genero == "M" ? -6.5 : 6.5; // la formula cambia para mujeres u hombres
+	return Math.round(((mama + papa) / 2 + ajuste) * 10) / 10; 
+}
+
+//* lee la talla de un papá como llegó del formulario, si es null o numero
+function leerTalla(valor){
+	if (valor == null || valor === ""){  // no se conoce el dato y solito va a tomar la media 
+		return null;
+	}
+	let talla = Number(valor);
+	if (isNaN(talla) || talla < 110 || talla > 220){ // por si ponen un dato que está raro
+		return undefined;
+	}
+	return talla;
+}
+const ERROR_TALLA = "La talla de la mamá y del papá debe estar entre 110 y 220 cm, o dejarse vacía si no se conoce.";
+
 //* filtrado por rol: regresa un filtro de mongoDB con lo que la sesión tiene permitido ver
 async function alcance(sesion, coleccion){
 	if (sesion.rol == "admin"){ //^ admin ve todo, regresa un filtro sin filtro 
@@ -111,7 +134,6 @@ async function alcance(sesion, coleccion){
 
 	if (coleccion == "estancias"){
 		//^ el personal de estancia ve el catálogo completo para poder escoger el destino al transferir a un niño
-		//^ (solo son número, nombre, estado y región; no trae datos de niños)
 		if (sesion.rol == "estancia"){
 			return {};
 		}
@@ -257,14 +279,22 @@ async function createData(coleccion, req, res){
 			return res.status(409).json({message: "Este infante ya no está inscrito, no se le pueden capturar medidas."});
 		valores.registradoPor = req.sesion.id; //para el log
 		valores.ebdi = infante.ebdi; // estancia donde se tomó la medición (solo como registro, los permisos van por la estancia actual del niño)
+		delete valores.tallaBlancoFamiliar; // es del infante (se calcula al registrarlo), no de cada medición
 	}
 
 	if (coleccion == "infantes"){ // se da de alta un infante nuevo
+		//^ talla blanco familiar
+		valores.tallaMama = leerTalla(valores.tallaMama);
+		valores.tallaPapa = leerTalla(valores.tallaPapa);
+		if (valores.tallaMama === undefined || valores.tallaPapa === undefined){
+			return res.status(400).json({message: ERROR_TALLA});
+		}
+		valores.tallaBlancoFamiliar = calcularTallaBlanco(valores.tallaMama, valores.tallaPapa, valores.genero);
 		if (req.sesion.rol == "estancia") {
 			valores.ebdi = req.sesion.estanciaId; 
 		}
 		valores.id = await nuevoId("infantes");
-		// datos que pone el servidor al inscribir, viene de la idea de seguridad de claude
+		// datos que pone el servidor al inscribir
 		valores.usuario = req.sesion.id; // quién lo registró
 		valores.freg = new Date().toLocaleDateString("en-CA", {timeZone: "America/Mexico_City"});
 		valores.estatus_servicio = 1; // inscrito
@@ -331,7 +361,29 @@ async function updateData(coleccion, id, req, res){
 		delete valores.fCambioEbdi_ini;
 		delete valores.activo;
 		delete valores.estatus_servicio;
-	
+
+		//^ talla blanco familiar: se vuelve a calcular por si corrigieron la talla de algún papá o el sexo.
+		let mama;
+		if ("tallaMama" in valores){ //el formulario trae la talla de la mamá?
+			mama = leerTalla(valores.tallaMama); // revísala y usa lo que mandaron
+		} else if (anterior.tallaMama != null){ // no la trae, revisa si el infante ya tenía una guardada
+			mama = anterior.tallaMama; // si ya tenia una, se queda la que tenía
+		} else { mama = null; // desde un inicio no tenía entonces se queda asi
+		}
+		let papa;
+		if ("tallaPapa" in valores){ // lo mismo para el papá
+			papa = leerTalla(valores.tallaPapa); 
+		} else if (anterior.tallaPapa != null){ 
+			papa = anterior.tallaPapa; 
+		} else { papa = null; }
+
+		if (mama === undefined || papa === undefined){
+			return res.status(400).json({message: ERROR_TALLA});
+		}
+		valores.tallaMama = mama;
+		valores.tallaPapa = papa;
+		valores.tallaBlancoFamiliar = calcularTallaBlanco(mama, papa, valores.genero ?? anterior.genero);
+
 		//^ transferir niños a otra estancia
 		if (valores.ebdi != undefined && Number(valores.ebdi) != anterior.ebdi){  // si se cambio el ebdi y este es diferente al anterior
 			valores.ebdi = Number(valores.ebdi);
