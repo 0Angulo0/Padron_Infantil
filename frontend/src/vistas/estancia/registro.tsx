@@ -30,7 +30,6 @@ export const InfanteCreate = () => {
       <SimpleForm>
         {/* a la estancia el backend le pone su ebdi, el admin la tiene que elegir */}
         {permissions == "admin" && <NumberInput source="ebdi" label="EBDI" validate={required()} />}
-        {permissions == "admin" && <TextInput source="ur" label="UR" validate={maxLength(3)} />}
         <NumberInput source="matricula" label="Matrícula" validate={required()} />
         <TextInput source="nombre" label="Nombre(s)" validate={required()} />
         <TextInput source="paterno" label="Apellido paterno" validate={required()} />

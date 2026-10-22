@@ -3,12 +3,13 @@ import {
   Edit, SimpleForm, Toolbar, SaveButton,
   TextInput, NumberInput, DateInput, SelectInput, required, maxLength,
 } from "react-admin";
+import { RegionField, regiones } from "../estancia/lista";
 
 //* el admin ve y edita todo el padrón (tabla padron del sql)
 const filtros = [
   <NumberInput label="Matrícula" source="matricula" alwaysOn />,
   <NumberInput label="EBDI" source="ebdi" />,
-  <TextInput label="UR" source="ur" />,
+  <SelectInput label="Región" source="region" choices={regiones} />,
 ];
 
 export const AdminInfanteList = () => (
@@ -20,7 +21,9 @@ export const AdminInfanteList = () => (
     <DataTable rowClick="show" bulkActionButtons={false}>
       <DataTable.Col source="matricula" label="Matrícula" />
       <DataTable.Col source="ebdi" label="EBDI" />
-      <DataTable.Col source="ur" label="UR" />
+      <DataTable.Col label="Región">
+        <RegionField />
+      </DataTable.Col>
       <DataTable.Col source="nombre" label="Nombre" />
       <DataTable.Col source="paterno" label="Apellido paterno" />
       <DataTable.Col source="materno" label="Apellido materno" />
@@ -39,7 +42,6 @@ export const AdminInfanteEdit = () => (
   <Edit title="Editar infante">
     <SimpleForm warnWhenUnsavedChanges toolbar={<Toolbar><SaveButton /></Toolbar>}>
       <NumberInput source="matricula" label="Matrícula" validate={required()} />
-      <TextInput source="ur" label="UR" validate={maxLength(3)} />
       <NumberInput source="ebdi" label="EBDI" validate={required()} />
       <TextInput source="nombre" label="Nombre(s)" validate={required()} />
       <TextInput source="paterno" label="Apellido paterno" validate={required()} />

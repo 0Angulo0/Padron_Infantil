@@ -1,6 +1,6 @@
 import "chart.js/auto";
 import { Line } from "react-chartjs-2";
-import { Show, TopToolbar, CreateButton, useRecordContext, useGetList, usePermissions } from "react-admin";
+import { Show, TopToolbar, CreateButton, useRecordContext, useGetList, useGetOne, usePermissions } from "react-admin";
 import { Card, CardContent, Typography, Alert, Table, TableHead, TableBody, TableRow, TableCell } from "@mui/material";
 import { edadTexto } from "./lista";
 import { colores } from "../../theme";
@@ -80,6 +80,8 @@ const Graficas = () => {
     filter: { infanteId: infante?.id },
     sort: { field: "fecha", order: "ASC" },
   });
+  //^ la región (UR) sale de la estancia del infante
+  const { data: estancia } = useGetOne("estancias", { id: infante?.ebdi }, { enabled: !!infante });
 
   if (!infante) return null;
 
@@ -93,7 +95,7 @@ const Graficas = () => {
       <Card sx={{ mb: 2 }}>
         <CardContent>
           <Typography variant="h2">Datos del infante</Typography>
-          <Typography>Matrícula: {infante.matricula} · EBDI: {infante.ebdi} · UR: {infante.ur || "—"}</Typography>
+          <Typography>Matrícula: {infante.matricula} · EBDI: {infante.ebdi} · Región: {estancia?.region || "—"}</Typography>
           <Typography>Sexo: {infante.genero === "M" ? "Mujer" : "Hombre"} · CURP: {infante.curp || "—"}</Typography>
           <Typography>
             Nacimiento: {new Date(infante.fnac).toLocaleDateString("es-MX", { timeZone: "UTC" })} · Edad: {edadTexto(infante.fnac)}

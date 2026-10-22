@@ -2,6 +2,7 @@ import {
   List, DataTable, TopToolbar, FilterButton, ExportButton,
   TextInput, NumberInput, DateField,
 } from "react-admin";
+import { RegionField } from "../estancia/lista";
 
 //* estancias de su región (el backend ya filtra por la región del coordinador)
 const filtros = [
@@ -32,7 +33,6 @@ export const ResumenList = () => (
 const infanteFiltros = [
   <NumberInput label="Matrícula" source="matricula" alwaysOn />,
   <NumberInput label="EBDI" source="ebdi" />,
-  <TextInput label="UR" source="ur" />,
 ];
 
 export const CoordinadorInfanteList = () => (
@@ -40,7 +40,9 @@ export const CoordinadorInfanteList = () => (
     <DataTable rowClick="show" bulkActionButtons={false}>
       <DataTable.Col source="matricula" label="Matrícula" />
       <DataTable.Col source="ebdi" label="EBDI" />
-      <DataTable.Col source="ur" label="UR" />
+      <DataTable.Col label="Región">
+        <RegionField />
+      </DataTable.Col>
       <DataTable.Col source="nombre" label="Nombre" />
       <DataTable.Col source="paterno" label="Apellido paterno" />
       <DataTable.Col source="materno" label="Apellido materno" />

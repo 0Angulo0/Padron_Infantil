@@ -1,4 +1,6 @@
-import { List, DataTable, DateField, SelectField, CreateButton, useRecordContext } from "react-admin";
+import {
+  List, DataTable, DateField, SelectField, CreateButton, ReferenceField, TextField, useRecordContext,
+} from "react-admin";
 import { Link } from "react-router-dom";
 import { Button } from "@mui/material";
 
@@ -36,6 +38,22 @@ const Acciones = () => {
     </span>
   );
 };
+
+//* región (UR) del infante: no se guarda en el infante, sale de su estancia (ebdi → estancias.region)
+export const RegionField = () => (
+  <ReferenceField source="ebdi" reference="estancias" link={false}>
+    <TextField source="region" />
+  </ReferenceField>
+);
+
+//* regiones para los filtros
+export const regiones = [
+  { id: "Norte", name: "Norte" },
+  { id: "Centro", name: "Centro" },
+  { id: "Oeste", name: "Oeste" },
+  { id: "Este", name: "Este" },
+  { id: "Sur", name: "Sur" },
+];
 
 const EdadField = () => {
   const infante = useRecordContext();
