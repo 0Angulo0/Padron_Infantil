@@ -78,7 +78,6 @@ const pantallasPorRol = (rol: string) => {
           name="infantes"
           options={{ label: "Padrón de infantes" }}
           list={AdminInfanteList}
-          create={InfanteCreate}
           edit={AdminInfanteEdit}
           show={InfanteCurvas}
           icon={InfanteIcon}
