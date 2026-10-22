@@ -1,5 +1,5 @@
 import {
-  List, DataTable, DateField, EditButton, CreateButton, TopToolbar,
+  List, DataTable, DateField, EditButton,
   Edit, SimpleForm, Toolbar, SaveButton,
   TextInput, NumberInput, DateInput, SelectInput, required, maxLength, minValue, maxValue,
 } from "react-admin";
@@ -10,13 +10,24 @@ const filtros = [
   <NumberInput label="Matrícula" source="matricula" alwaysOn />,
   <NumberInput label="EBDI" source="ebdi" />,
   <SelectInput label="Región" source="region" choices={regiones} />,
+  <SelectInput
+    label="Región"
+    source="region"
+    choices={[
+      { id: "Centro", name: "Centro" },
+      { id: "Norte", name: "Norte" },
+      { id: "Oeste", name: "Oeste" },
+      { id: "Este", name: "Este" },
+      { id: "Sur", name: "Sur" },
+    ]}
+    alwaysOn
+  />,
 ];
 
 export const AdminInfanteList = () => (
   <List
     title="Padrón de infantes"
     filters={filtros}
-    actions={<TopToolbar><CreateButton label="Registrar infante" /></TopToolbar>}
   >
     <DataTable rowClick="show" bulkActionButtons={false}>
       <DataTable.Col source="matricula" label="Matrícula" />
