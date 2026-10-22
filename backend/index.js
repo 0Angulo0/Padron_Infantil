@@ -416,4 +416,3 @@ https.createServer(options, app).listen(PORT, async () => {
 		await connectToDB();
       	console.log('HTTPS Server running on port ' + PORT);
 });
-
