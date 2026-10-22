@@ -36,8 +36,8 @@ const infanteFiltros = [
 ];
 
 export const CoordinadorInfanteList = () => (
-  <List title="Infantes de mi región" filters={infanteFiltros}>
-    <DataTable rowClick="show" bulkActionButtons={false}>
+<List title="Infantes de mi región" filter={{ activo: 1 }} filters={infanteFiltros}>
+      <DataTable rowClick="show" bulkActionButtons={false}>
       <DataTable.Col source="matricula" label="Matrícula" />
       <DataTable.Col source="ebdi" label="EBDI" />
       <DataTable.Col label="Región">

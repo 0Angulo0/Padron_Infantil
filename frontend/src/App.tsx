@@ -16,6 +16,7 @@ import { TutorList, TutorShow } from "./vistas/tutor/tutor";
 import { ResumenList, CoordinadorInfanteList } from "./vistas/coordinador/coordinador";
 import { AdminInfanteList, AdminInfanteEdit } from "./vistas/admin/admin";
 import { PrimerAcceso } from "./vistas/tutor/primeracceso";
+import { MoverEbdi } from "./vistas/estancia/moveredbi";
 
 //^ traducción
 import { authProvider } from "./proveedores/authProvider";
@@ -25,6 +26,13 @@ import { i18nProvider } from "./proveedores/i18nProvider";
 //? las curvas son el show de cada infante, se abren dando clic en la fila
 const captura = (
   <Resource name="mediciones" options={{ label: "Captura de medidas" }} create={MedicionCreate} />
+);
+
+//? mover de estancia o dar de baja: solo estancia y admin (el backend también lo revisa)
+const movimiento = (
+  <CustomRoutes>
+    <Route path="/infantes/:id/movimiento" element={<MoverEbdi />} />
+  </CustomRoutes>
 );
 
 const pantallasPorRol = (rol: string) => {
@@ -48,9 +56,11 @@ const pantallasPorRol = (rol: string) => {
           list={InfanteList}
           create={InfanteCreate}
           show={InfanteCurvas}
+          edit={AdminInfanteEdit}
           icon={InfanteIcon}
         />
         {captura}
+        {movimiento}
       </>
     );
   }
@@ -85,6 +95,7 @@ const pantallasPorRol = (rol: string) => {
           icon={InfanteIcon}
         />
         {captura}
+        {movimiento}
       </>
     );
   }

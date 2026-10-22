@@ -1,5 +1,5 @@
 import {
-  List, DataTable, DateField, SelectField, CreateButton, ReferenceField, TextField, useRecordContext,
+  List, DataTable, DateField, SelectField, CreateButton, ReferenceField, TextField, useRecordContext, EditButton
 } from "react-admin";
 import { Link } from "react-router-dom";
 import { Button } from "@mui/material";
@@ -23,7 +23,7 @@ const Acciones = () => {
   if (!infante) return null;
   const parar = (e: React.MouseEvent) => e.stopPropagation();
   return (
-    <span onClick={parar}>
+    <span onClick={parar} >
       <Button size="small" component={Link} to={`/infantes/${infante.id}/show`}>
         Ver datos y medidas
       </Button>
@@ -35,6 +35,12 @@ const Acciones = () => {
       >
         Tomar medidas
       </Button>
+      {infante.activo == 1 && (
+        <Button size="small" component={Link} to={`/infantes/${infante.id}/movimiento`}>
+          Mover o dar de baja
+        </Button>
+      )}
+      <EditButton></EditButton>
     </span>
   );
 };
@@ -61,7 +67,7 @@ const EdadField = () => {
 };
 
 export const InfanteList = () => (
-  <List actions={<CreateButton label = "Registrar infante" />}>
+  <List filter={{ activo: 1 }} actions={<CreateButton label="Registrar infante" />}> 
     <DataTable rowClick="show" bulkActionButtons={false}>
       <DataTable.Col source="matricula" label="Matrícula" />
       <DataTable.Col source="nombre" label="Nombre" />

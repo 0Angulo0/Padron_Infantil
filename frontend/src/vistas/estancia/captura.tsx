@@ -12,7 +12,7 @@ export const MedicionCreate = () => (
       <Typography variant="h1">Capturar medidas</Typography>
 
       {/* solo los inscritos: a un niño dado de baja el backend no le deja capturar medidas */}
-      <ReferenceInput source="infanteId" reference="infantes" perPage={500} filter={{ activo: 1 }}>
+      <ReferenceInput source="infanteId" reference="infantes" filter={{ activo: 1 }} perPage={500}>        
         <SelectInput
           label="Infante"
           optionText={(i) => `${i.nombre} ${i.paterno} ${i.materno}`}

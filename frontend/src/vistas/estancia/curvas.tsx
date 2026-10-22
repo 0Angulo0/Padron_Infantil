@@ -1,7 +1,8 @@
 import "chart.js/auto";
 import { Line } from "react-chartjs-2";
 import { Show, TopToolbar, CreateButton, useRecordContext, useGetList, useGetOne, usePermissions } from "react-admin";
-import { Card, CardContent, Typography, Alert, Table, TableHead, TableBody, TableRow, TableCell } from "@mui/material";
+import { Card, CardContent, Typography, Alert, Table, TableHead, TableBody, TableRow, TableCell, Button } from "@mui/material";
+import { Link } from "react-router-dom";
 import { edadTexto } from "./lista";
 import { colores } from "../../theme";
 import cdc from "../../datos/cdc.json";
@@ -172,6 +173,7 @@ const Graficas = () => {
                   <TableCell>Peso (kg)</TableCell>
                   <TableCell>Talla (cm)</TableCell>
                   <TableCell>Perímetro cefálico (cm)</TableCell>
+                  <TableCell>Índice de Masa corporal (kg/m²)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -182,6 +184,7 @@ const Graficas = () => {
                     <TableCell>{m.peso}</TableCell>
                     <TableCell>{m.talla}</TableCell>
                     <TableCell>{m.perimetroCefalico ?? "—"}</TableCell>
+                    <TableCell>{m.peso != null && m.talla != null ? calcularImc(m.peso, m.talla) : "—"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -231,8 +234,20 @@ const TomarMedidas = () => {
   );
 };
 
+//* botón al formulario de mover de estancia o dar de baja (estancia y admin, solo si sigue inscrito)
+const MoverOBaja = () => {
+  const infante = useRecordContext();
+  const { permissions } = usePermissions();
+  if (!infante || infante.activo != 1 || (permissions != "estancia" && permissions != "admin")) return null;
+  return (
+    <Button component={Link} to={`/infantes/${infante.id}/movimiento`} size="small">
+      Mover o dar de baja
+    </Button>
+  );
+};
+
 export const InfanteCurvas = () => (
-  <Show title="Curvas de crecimiento" actions={<TopToolbar><TomarMedidas /></TopToolbar>}>
+  <Show title="Curvas de crecimiento" actions={<TopToolbar><TomarMedidas /><MoverOBaja /></TopToolbar>}>
     <Graficas />
   </Show>
 );
