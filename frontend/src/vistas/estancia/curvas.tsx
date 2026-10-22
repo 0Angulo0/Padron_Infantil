@@ -131,6 +131,11 @@ const Graficas = () => {
             Nacimiento: {new Date(infante.fnac).toLocaleDateString("es-MX", { timeZone: "UTC" })} · Edad: {edadTexto(infante.fnac)}
           </Typography>
           <Typography>Estatus: {infante.activo === 1 ? "Inscrito" : "Ya no está inscrito"}</Typography>
+          <Typography>
+            Talla blanco familiar: {infante.tallaBlancoFamiliar != null ? `${infante.tallaBlancoFamiliar} cm` : "—"}
+            {infante.tallaBlancoFamiliar != null && (infante.tallaMama == null || infante.tallaPapa == null) &&
+              " (calculada con la talla promedio en México porque falta la de la mamá o el papá)"}
+          </Typography>
         </CardContent>
       </Card>
       <Card sx={{ mb: 2 }}>
