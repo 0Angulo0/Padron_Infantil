@@ -223,6 +223,13 @@ async function getList(coleccion, req, res){
 	if (req.query._start != undefined){  //si en el query trae un filtro de donde iniciar a donde terminar
 		data = data.slice(Number(req.query._start), Number(req.query._end));
 	}
+	//? alerta de 45 días, solo se manda si se pide, pero no se guarda
+	if (coleccion == "infantes"){
+		for (let i = 0; i < data.length; i++){
+			let ultima = await db.collection("mediciones").find({infanteId: data[i].id}).sort({fecha: -1}).limit(1).toArray();
+			data[i].ultimaMedicion = ultima.length == 0 ? null : ultima[0].fecha; //null = nunca lo han medido
+		}
+	}
 	res.json(data);  //regresa la data filtrada
 }
 
