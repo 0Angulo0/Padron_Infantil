@@ -1,5 +1,5 @@
 /*
-? rutas de las colecciones
+? endpoints de las colecciones
 - Cada colección tiene 4 rutas: lista, un registro, crear y editar.
 */
 

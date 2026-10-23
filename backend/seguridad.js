@@ -28,7 +28,7 @@ function revisarContrasena(pwd){
 	return null;
 };
 
-//* genera una clave de acceso para las familias, por ejemplo PI-7K3M9Q
+//* genera una clave de acceso para las familias
 function generarClaveAcceso(){
 	const caracteres="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 	let clave="ID-";

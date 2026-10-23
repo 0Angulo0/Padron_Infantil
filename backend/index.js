@@ -49,7 +49,7 @@ async function log(sujeto, accion, objeto){
 }
 
 //* revisa el token y guarda los datos de la sesión en req.sesion
-// está como función ya que lo usamos para revisar que la persona en sesión tenga los permismos
+// estomInt, que es aleatorio de verdad (Math.random se puede predecir), y no usa O, 0, I, 1 ni L á como función ya que lo usamos para revisar que la persona en sesión tenga los permismos
 async function verificarToken(req, res, next){
 	try{
 		let token = req.get("Authentication");
@@ -81,11 +81,12 @@ function leerTalla(valor){
 		return null;
 	}
 	let talla = Number(valor);
-	if (isNaN(talla) || talla < 110 || talla > 220){ // por si ponen un dato que está raro
+	if (talla < 110 || talla > 220){ // por si ponen un dato que está raro
 		return undefined;
 	}
 	return talla;
 }
+// TODO: mover a i18n
 const ERROR_TALLA = "La talla de la mamá y del papá debe estar entre 110 y 220 cm, o dejarse vacía si no se conoce.";
 
 //* filtrado por rol: regresa un filtro de mongoDB con lo que la sesión tiene permitido ver
@@ -99,7 +100,7 @@ async function alcance(sesion, coleccion){
 		if (coleccion == "infantes"){
 			return {id: {$in: infanteIds}}; //cualquiera de la lista de los ids 
 			/*
-			! se le pidio ayuda a claude para saber porqué no se mostraban los datos, ya que mi línea enterior era
+			! se le pidio ayuda a claude para saber porqué no se mostraban los datos, ya que mi línea anterior era
 			! "return {id: infanteIds};" y no se mostraba ningun infante, le pregunte a claude el porqué y me sugirió
 			! el uso de {$in: infanteIds} que le dice a mongodb que busque en todos los ids que vienen en la lista
 			*/
@@ -162,7 +163,7 @@ async function alcance(sesion, coleccion){
 //& funciones para leer y escribir en la db
 //* filtro con lo que la persona pidio en la URL
 function filtroDeConsulta(query){
-//! se consultó a Claude para mejorar la seguridad del código y sugirio los siguientes cambios:
+//! se consultó a Claude para ya que no lei el id necesrio:
 	let filtro = {...query}; // copia, para no modificar req.query
 	//se quitan para que mongodb no los tome como campos 
 	delete filtro._sort;
@@ -170,7 +171,7 @@ function filtroDeConsulta(query){
 	delete filtro._start;
 	delete filtro._end;
 	delete filtro.q;
-//! aqui termina los cambios sugeridos para mejorar la seguridad
+//! aqui termina los cambios sugeridos
 	//luego el numero se pasa de texto plano a numero 
 	for (let campo in filtro){  //se revisan los campos que quedaron 
 		let esId = campo == "id" || campo.endsWith("Id"); //si dice lit id o termina en id como estanciaid, es id xd
@@ -208,7 +209,7 @@ async function getList(coleccion, req, res){
 		for (let i = 0; i < estancias.length; i++){
 			ebdis.push(estancias[i].id);
 		}
-		delete consulta.region;
+		delete consulta.region;  //! mejorar la seguridad del código y sugirio los siguientes cambios
 		consulta.ebdi = {$in: ebdis};
 	}
 	let filtro = {$and: [consulta, await alcance(req.sesion, coleccion)]};
@@ -262,24 +263,25 @@ async function createData(coleccion, req, res){
 	delete valores.claveAcceso; // la genera claveAccesoNueva 
 	let respuestaExtra={};
 
-	if (coleccion == "usuarios"){ //el admin quiere crear un nuevo usuario de personal
+	if (coleccion == "usuarios"){ //^ el admin quiere crear un nuevo usuario de personal
 		let error = revisarContrasena(String(req.body.password || ""));
 		if (error) 
 			return res.status(400).json({message: error});  //datos no validos
 		valores.passwordHash = await hashear(req.body.password); //se guarda el hash
 	}
 
-	if (coleccion == "mediciones"){ // el personal toma las medidas de un infante
+	if (coleccion == "mediciones"){ //^ el personal toma las medidas de un infante
 		valores.infanteId = Number(valores.infanteId);
 		// revisa que el infante este dentro de las estancias que tiene acceso la sesion
 		let infante = await db.collection("infantes").findOne({$and: [{id: valores.infanteId}, await alcance(req.sesion, "infantes")]});
 		if (infante == null)  // no existe el infante dentro de las estancias que tiene la sesion
 			return res.sendStatus(403); //prohibido
 		if (infante.activo != 1) // egresado o dado de baja, ya no se le toman medidas
+		//TODO: poner en i18n
 			return res.status(409).json({message: "Este infante ya no está inscrito, no se le pueden capturar medidas."});
-		valores.registradoPor = req.sesion.id; //para el log
-		valores.ebdi = infante.ebdi; // estancia donde se tomó la medición (solo como registro, los permisos van por la estancia actual del niño)
-		delete valores.tallaBlancoFamiliar; // es del infante (se calcula al registrarlo), no de cada medición
+		valores.registradoPor = req.sesion.id; //para el bd
+		valores.ebdi = infante.ebdi; // estancia donde se tomó la medición 
+		delete valores.tallaBlancoFamiliar; // es del infante, no de cada medición
 	}
 
 	if (coleccion == "infantes"){ // se da de alta un infante nuevo
@@ -417,7 +419,7 @@ async function updateData(coleccion, id, req, res){
 //& opciones de inicio de sesión, que la cuenta exista o primera vez de tutores 
 //* login
 app.post("/login", async(req, res) => {
-	let user = String(req.body.username || "").trim();
+	let user = String(req.body.username || "");
 	let pwd = String(req.body.password || "");
 	let sesion;
 	let cuenta;
@@ -450,7 +452,7 @@ app.post("/login", async(req, res) => {
 
 //* primer acceso: la familia usa su clave para crear su contraseña
 app.post("/primer-acceso", async(req, res)=>{
-	let clave = String(req.body.claveAcceso || "").trim().toUpperCase();
+	let clave = String(req.body.claveAcceso || "").toUpperCase();
 	let pwd = String(req.body.password || "");
 	let tutor = await db.collection("tutores").findOne({claveAcceso: clave});
 	if (tutor == null || tutor.passwordHash != null){  //^ caso 1: no existe ese tutor o ya tiene contraseña
