@@ -44,7 +44,17 @@ const Barra = () => {
 };
 
 export const Layout = ({ children }: { children: ReactNode }) => (
-  <RALayout menu={MenuPorRol} appBar={Barra}>
+  //? minWidth 0: sin esto los contenedores crecen al ancho de la tabla y se desliza toda la página;
+  //? así solo se desliza la tabla dentro de su tarjeta
+  <RALayout
+    menu={MenuPorRol}
+    appBar={Barra}
+    sx={{
+      minWidth: 0,
+      "& .RaLayout-appFrame, & .RaLayout-contentWithSidebar, & .RaLayout-content, & .RaList-main": { minWidth: 0 },
+      "& .MuiCard-root.RaList-content": { overflowX: "auto" }, // la tarjeta de la tabla (dos clases para ganarle al estilo de react-admin)
+    }}
+  >
     {children}
     <CheckForApplicationUpdate />
   </RALayout>
