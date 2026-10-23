@@ -70,12 +70,29 @@ export const Grafica = ({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
 
   const linea = (campo: "p3" | "p50" | "p97") => referencia.map((f) => ({ x: f.x, y: f[campo] }));
 
+  //* descripción de la gráfica para lectores de pantalla (WCAG 1.1.1): lo mismo que se ve, en texto
+  const unDecimal = (n: number) => Math.round(n * 10) / 10;
+  let resumen;
+  if (!ultimo) {
+    resumen = "Todavía no hay mediciones.";
+  } else if (fueraDeTabla) {
+    resumen = `La medición más reciente (${ejeX}: ${unDecimal(ultimo.x)}, ${ejeY}: ${unDecimal(ultimo.y)}) queda fuera de la tabla de referencia, que va de ${min} a ${max}.`;
+  } else {
+    resumen =
+      `Medición más reciente: ${ejeX} ${unDecimal(ultimo.x)}, ${ejeY} ${unDecimal(ultimo.y)}. ` +
+      `El valor típico (percentil 50) es ${unDecimal(percentilEn(referencia, ultimo.x, "p50"))}. ` +
+      `${dentro ? "Está dentro" : "Está fuera"} del rango esperado, entre el percentil 3 y el 97.`;
+  }
+  const descripcion = `Gráfica de ${titulo}. ${resumen} ${puntos.length} mediciones en total; el detalle está en la tabla del historial de mediciones.`;
+
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
         <Typography variant="h2" component="h2">{titulo}</Typography>
         <div style={{ height: 320 }}>
           <Line
+            role="img"
+            aria-label={descripcion}
             data={{
               datasets: [
                 { label: "Límite alto (percentil 97)", data: linea("p97"), borderColor: colores.grisOscuro, borderDash: [10, 5], pointRadius: 0 },

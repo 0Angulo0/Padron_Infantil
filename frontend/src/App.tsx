@@ -13,10 +13,11 @@ import { InfanteList } from "./vistas/estancia/lista";
 import { InfanteCreate } from "./vistas/estancia/registro";
 import { MedicionCreate } from "./vistas/estancia/captura";
 import { InfanteCurvas } from "./vistas/estancia/curvas";
-import { TutorList, TutorShow } from "./vistas/tutor/tutor";
+import { TutorList } from "./vistas/tutor/tutor";
 import { ResumenList, CoordinadorInfanteList } from "./vistas/coordinador/coordinador";
 import { AdminInfanteList, AdminInfanteEdit } from "./vistas/admin/admin";
 import { PrimerAcceso } from "./vistas/tutor/primeracceso";
+import { MoverEbdi } from "./vistas/estancia/moveredbi";
 
 //^ traducción
 import { authProvider } from "./proveedores/authProvider";
@@ -28,6 +29,13 @@ const captura = (
   <Resource name="mediciones" options={{ label: "Captura de medidas" }} create={MedicionCreate} />
 );
 
+//? mover de estancia o dar de baja: solo estancia y admin (el backend también lo revisa)
+const movimiento = (
+  <CustomRoutes>
+    <Route path="/infantes/:id/movimiento" element={<MoverEbdi />} />
+  </CustomRoutes>
+);
+
 const pantallasPorRol = (rol: string) => {
   if (rol == "tutor") {
     return (
@@ -35,7 +43,7 @@ const pantallasPorRol = (rol: string) => {
         name="infantes"
         options={{ label: "Mi hija o hijo" }}
         list={TutorList}
-        show={TutorShow}
+        show={InfanteCurvas} // la familia ve las mismas curvas que la estancia (sin los botones, que dependen del rol)
         icon={TutorIcon}
       />
     );
@@ -52,6 +60,7 @@ const pantallasPorRol = (rol: string) => {
           icon={InfanteIcon}
         />
         {captura}
+        {movimiento}
       </>
     );
   }
@@ -85,6 +94,7 @@ const pantallasPorRol = (rol: string) => {
           show={InfanteCurvas}
           icon={InfanteIcon}
         />
+        {movimiento}
       </>
     );
   }
@@ -108,7 +118,7 @@ export const App = () => (
     loginPage={LoginConLogo} 
   >
     <CustomRoutes noLayout>
-      <Route path="/primer-acceso" element={<PrimerAcceso />} />
+      <Route path="/primeracceso" element={<PrimerAcceso />} />
     </CustomRoutes>
     {(rol) => pantallasPorRol(rol)}
   </Admin>
