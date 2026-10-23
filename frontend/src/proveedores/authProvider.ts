@@ -39,7 +39,7 @@ export const authProvider : AuthProvider={
 
   getPermissions:() => {
     const identity = sessionStorage.getItem("identity");
-    // sin sesión se responde "sin rol" (null) y no un error: con el error react-admin se quedaba en "Cargando" para siempre
+    // sin sesión se responde "sin rol" (null) y no un error
     return Promise.resolve(identity ? JSON.parse(identity).rol : null);
   },
 
