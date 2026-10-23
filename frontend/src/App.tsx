@@ -1,5 +1,6 @@
 import { Admin, Resource, CustomRoutes, Login, LoginForm } from "react-admin"; // ← NUEVO: Login, LoginForm
 import { Route } from "react-router-dom";
+import { Alert } from "@mui/material";
 import { Layout } from "./Layout";
 import { dataProvider } from "./proveedores/dataProvider";
 import { tema } from "./theme";
@@ -102,9 +103,19 @@ const pantallasPorRol = (rol: string) => {
 };
 
 const LoginConLogo = () => (
-  <Login sx={{ "& .RaLogin-avatar": { display: "none" } }}>
+  <Login
+    sx={{
+      "& .RaLogin-avatar": { display: "none" },
+      "& .RaLoginForm-content": { mx: "auto" }, // centra los campos y el botón 
+    }}
+  >
         <img src={logo} alt="Gobierno de México" style={{ display: "block", width: 260, margin: "16px auto 0" }}/>
     <LoginForm />
+    {/* aviso para las familias*/}
+    <Alert severity="info" sx={{ m: 2, mt: 0, maxWidth: 400 }}> 
+      ¿Eres madre, padre o tutor y es tu primera vez? Escribe tu clave de acceso (ID-…) en Usuario y también en
+      Contraseña.
+    </Alert>
   </Login>
 );
 
