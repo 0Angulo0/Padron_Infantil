@@ -80,7 +80,6 @@ export const AdminInfanteEdit = () => (
         validate={[minValue(110, "Mínimo 110 cm"), maxValue(220, "Máximo 220 cm")]}
       />
       <DateInput source="fnac" label="Fecha de nacimiento" validate={required()} />
-      {/* activo y estatus_servicio los calcula el backend al dar de baja */}
       <SelectInput source="baja" label="Baja" choices={[{ id: 0, name: "No" }, { id: 1, name: "Sí" }]} />
       <SelectInput
         source="motivoBaja"

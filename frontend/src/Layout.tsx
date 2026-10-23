@@ -44,8 +44,6 @@ const Barra = () => {
 };
 
 export const Layout = ({ children }: { children: ReactNode }) => (
-  //? minWidth 0: sin esto los contenedores crecen al ancho de la tabla y se desliza toda la página;
-  //? así solo se desliza la tabla dentro de su tarjeta
   <RALayout
     menu={MenuPorRol}
     appBar={Barra}

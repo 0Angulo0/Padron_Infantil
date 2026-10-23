@@ -8,6 +8,8 @@ import logo from "./recursos/Logo_gobierno2026.jpeg"; // ← NUEVO
 import InfanteIcon from "@mui/icons-material/ChildCare";
 import TutorIcon from "@mui/icons-material/FamilyRestroom";
 import CoordinadorIcon from "@mui/icons-material/Assessment";
+import PersonalIcon from "@mui/icons-material/Badge";
+import EstanciaIcon from "@mui/icons-material/HomeWork";
 
 //^ vistas de Padrón Infantil
 import { InfanteList } from "./vistas/estancia/lista";
@@ -17,6 +19,7 @@ import { InfanteCurvas } from "./vistas/estancia/curvas";
 import { TutorList } from "./vistas/tutor/tutor";
 import { ResumenList, CoordinadorInfanteList } from "./vistas/coordinador/coordinador";
 import { AdminInfanteList, AdminInfanteEdit } from "./vistas/admin/admin";
+import { PersonalList, PersonalCreate, PersonalEdit, EstanciaList, EstanciaCreate, EstanciaEdit } from "./vistas/admin/registroPersonal";
 import { PrimerAcceso } from "./vistas/tutor/primeracceso";
 import { MoverEbdi } from "./vistas/estancia/moveredbi";
 
@@ -94,6 +97,22 @@ const pantallasPorRol = (rol: string) => {
           edit={AdminInfanteEdit}
           show={InfanteCurvas}
           icon={InfanteIcon}
+        />
+        <Resource
+          name="usuarios"
+          options={{ label: "Personal" }}
+          list={PersonalList}
+          create={PersonalCreate}
+          edit={PersonalEdit}
+          icon={PersonalIcon}
+        />
+        <Resource
+          name="estancias"
+          options={{ label: "Estancias" }}
+          list={EstanciaList}
+          create={EstanciaCreate}
+          edit={EstanciaEdit}
+          icon={EstanciaIcon}
         />
         {movimiento}
       </>
