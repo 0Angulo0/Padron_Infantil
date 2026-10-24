@@ -1,6 +1,8 @@
 /*
 ? conexiones y requests para la db
-! me apoye de https://www.mongodb.com/es/docs/search/query/operators-collectors/overview/ para ir haciendo el código
+! me apoye de https://www.mongodb.com/es/docs/manual/ para ir haciendo el código
+! para este código tome como base el codigo hecho por Jorge Rodriguez Ruiz (https://github.com/JorgeR-TEC/TC2007B-421-202624)
+! y para los estados (https://developer.mozilla.org/es/docs/Web/HTTP/Reference/Status)
 */
 
 //* constantes necesarias para conectar todo
@@ -260,8 +262,8 @@ async function claveAccesoNueva(){
 //* crea un registro nuevo con los datos del formulario (req.body)
 async function createData(coleccion, req, res){
 	let valores = {...req.body}; // copia de lo que mandó el formulario
-	//! se borran los datos que solo pone el server, para evitar que alguien le mueva. viene de la idea sugerida por claude
-	//! para mejorar la seguridad
+	//! se borran los datos que solo pone el server, para evitar que alguien le mueva.
+	//! viene de la idea sugerida por claude para mejorar la seguridad
 	delete valores._id; 
 	delete valores.id; // lo pone nuevoId
 	delete valores.passwordHash; 
@@ -300,7 +302,7 @@ async function createData(coleccion, req, res){
 			return res.status(409).json({message: "Este infante ya no está inscrito, no se le pueden capturar medidas."});
 		valores.registradoPor = req.sesion.id; //para el bd
 		valores.ebdi = infante.ebdi; // estancia donde se tomó la medición 
-		delete valores.tallaBlancoFamiliar; //! viene de la idea de mejora de seguridad
+		delete valores.tallaBlancoFamiliar; //! viene de la idea de mejora de seguridad de claude
 	}
 
 	if (coleccion == "infantes"){ // se da de alta un infante nuevo
@@ -341,7 +343,7 @@ async function createData(coleccion, req, res){
 			valores.tutorId = tutor.id;
 			respuestaExtra.claveAcceso = tutor.claveAcceso; // la clave solo se regresa esta vez, para entregársela a la familia
 		}
-		delete valores.tutorNombre; //! idea de mejorar seguridad
+		delete valores.tutorNombre; //! idea de mejorar seguridad de claude
 		delete valores.tutorCiudad;
 	} else if (coleccion == "estancias"){
 		valores.id = valores.numero; // el id de la estancia es su número de EBDI
@@ -363,7 +365,7 @@ async function updateData(coleccion, id, req, res){
 		return res.sendStatus(404); //no encontrado el filtro que se quiere modificar
 	}
 	let valores = {...req.body}; // copia de lo que mandó el formulario
-	//! viene de la idea de seguridad 
+	//! viene de la idea de seguridad de claude
 	delete valores._id;
 	delete valores.id; // el id es el de la URL, no se puede cambiar
 	delete valores.passwordHash;
