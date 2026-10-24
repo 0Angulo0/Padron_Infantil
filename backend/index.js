@@ -1,5 +1,6 @@
 /*
 ? conexiones y requests para la db
+! me apoye de https://www.mongodb.com/es/docs/search/query/operators-collectors/overview/ para ir haciendo el código
 */
 
 //* constantes necesarias para conectar todo
@@ -100,9 +101,9 @@ async function alcance(sesion, coleccion){
 		if (coleccion == "infantes"){
 			return {id: {$in: infanteIds}}; //cualquiera de la lista de los ids 
 			/*
-			! se le pidio ayuda a claude para saber porqué no se mostraban los datos, ya que mi línea anterior era
-			! "return {id: infanteIds};" y no se mostraba ningun infante, le pregunte a claude el porqué y me sugirió
-			! el uso de {$in: infanteIds} que le dice a mongodb que busque en todos los ids que vienen en la lista
+			!  mi línea anterior era "return {id: infanteIds};" y no se mostraba ningun infante, le pregunte a claude 
+			! el porqué y me sugirió el uso de {$in: infanteIds} que le dice a mongodb que busque en todos los ids que
+			! vienen en la lista, luego igual lo encontre en la página de mongodb y me fui guiando con eso 
 			*/
 		}
 		if (coleccion == "mediciones"){
@@ -163,7 +164,6 @@ async function alcance(sesion, coleccion){
 //& funciones para leer y escribir en la db
 //* filtro con lo que la persona pidio en la URL
 function filtroDeConsulta(query){
-//! se consultó a Claude para ya que no lei el id necesrio:
 	let filtro = {...query}; // copia, para no modificar req.query
 	//se quitan para que mongodb no los tome como campos 
 	delete filtro._sort;
@@ -171,7 +171,6 @@ function filtroDeConsulta(query){
 	delete filtro._start;
 	delete filtro._end;
 	delete filtro.q;
-//! aqui termina los cambios sugeridos
 	//luego el numero se pasa de texto plano a numero 
 	for (let campo in filtro){  //se revisan los campos que quedaron 
 		let esId = campo == "id" || campo.endsWith("Id"); //si dice lit id o termina en id como estanciaid, es id xd
@@ -199,8 +198,7 @@ function filtroDeConsulta(query){
 
 //* lista de registros, sirve para getList, getMany y getManyReference 
 async function getList(coleccion, req, res){
-	//! le pedi ayuda a claude para saber como podia usar el alcance que había hecho antes para revisar los filtros, y siguiendo la 
-	//! misma idea que en $in, me recomendo $and para poder revisar que los datos se encuentren en la db y pasen el alcance
+	//! me guie con la idea que me dio claude en $in y lo que decia mongodb (https://www.mongodb.com/es/docs/manual/reference/mql/query-predicates/comparison/)
 	//? $and pide que se tengan que cumplir los dos filtros, lo que pidió y lo que tiene permitido
 	let consulta = filtroDeConsulta(req.query);
 	if (coleccion == "infantes" && consulta.region != undefined){
@@ -209,7 +207,7 @@ async function getList(coleccion, req, res){
 		for (let i = 0; i < estancias.length; i++){
 			ebdis.push(estancias[i].id);
 		}
-		delete consulta.region;  //! mejorar la seguridad del código y sugirio los siguientes cambios
+		delete consulta.region;  
 		consulta.ebdi = {$in: ebdis};
 	}
 	let filtro = {$and: [consulta, await alcance(req.sesion, coleccion)]};
@@ -262,11 +260,12 @@ async function claveAccesoNueva(){
 //* crea un registro nuevo con los datos del formulario (req.body)
 async function createData(coleccion, req, res){
 	let valores = {...req.body}; // copia de lo que mandó el formulario
-	//se borran los datos que solo pone el server, para evitar que alguien le mueva, viene de la idea sugerida por claude
-	delete valores._id; // id interno de MongoDB
+	//! se borran los datos que solo pone el server, para evitar que alguien le mueva. viene de la idea sugerida por claude
+	//! para mejorar la seguridad
+	delete valores._id; 
 	delete valores.id; // lo pone nuevoId
-	delete valores.passwordHash; // solo se crea con hashear (seguridad.js)
-	delete valores.password; // la contraseña en texto plano nunca se guarda
+	delete valores.passwordHash; 
+	delete valores.password; 
 	delete valores.claveAcceso; // la genera claveAccesoNueva 
 	let respuestaExtra={};
 
@@ -275,6 +274,19 @@ async function createData(coleccion, req, res){
 		if (error) 
 			return res.status(400).json({message: error});  //datos no validos
 		valores.passwordHash = await hashear(req.body.password); //se guarda el hash
+		valores.email = String(valores.email || "").toLowerCase(); // el login busca el correo en minúsculas
+		if (await db.collection("usuarios").findOne({email: valores.email}) != null)
+			return res.status(409).json({message: "Ya existe una cuenta con ese correo."}); 
+		valores.estanciaId = valores.estanciaId ? Number(valores.estanciaId) : null; //si no hay nada se pone null por si es admin
+		valores.activo = true; 
+	}
+
+	if (coleccion == "estancias"){ //^ el admin da de alta una estancia nueva
+		if (!valores.numero)
+			return res.status(400).json({message: "Falta el número de EBDI."});
+		valores.numero = Number(valores.numero);
+		if (await db.collection("estancias").findOne({id: valores.numero}) != null)
+			return res.status(409).json({message: "Ya existe una estancia con ese número de EBDI."});
 	}
 
 	if (coleccion == "mediciones"){ //^ el personal toma las medidas de un infante
@@ -288,7 +300,7 @@ async function createData(coleccion, req, res){
 			return res.status(409).json({message: "Este infante ya no está inscrito, no se le pueden capturar medidas."});
 		valores.registradoPor = req.sesion.id; //para el bd
 		valores.ebdi = infante.ebdi; // estancia donde se tomó la medición 
-		delete valores.tallaBlancoFamiliar; // es del infante, no de cada medición
+		delete valores.tallaBlancoFamiliar; //! viene de la idea de mejora de seguridad
 	}
 
 	if (coleccion == "infantes"){ // se da de alta un infante nuevo
@@ -329,14 +341,16 @@ async function createData(coleccion, req, res){
 			valores.tutorId = tutor.id;
 			respuestaExtra.claveAcceso = tutor.claveAcceso; // la clave solo se regresa esta vez, para entregársela a la familia
 		}
-		delete valores.tutorNombre; //estos datos se borran porque ya estan en los datos del tutor y no van en los registros de infates
+		delete valores.tutorNombre; //! idea de mejorar seguridad
 		delete valores.tutorCiudad;
+	} else if (coleccion == "estancias"){
+		valores.id = valores.numero; // el id de la estancia es su número de EBDI
 	} else {
 		valores.id = await nuevoId(coleccion);  //id del registro que se está creando
 	}
 
 	await db.collection(coleccion).insertOne(valores);  //guarda
-	delete valores._id;  //se borran los datos que no se deben mandar al navegador
+	delete valores._id;  //! se borran los datos que no se deben mandar al navegador
 	delete valores.passwordHash;
 	res.json({...valores, ...respuestaExtra});  //regresa la info necesaria unicamente
 }
@@ -349,7 +363,7 @@ async function updateData(coleccion, id, req, res){
 		return res.sendStatus(404); //no encontrado el filtro que se quiere modificar
 	}
 	let valores = {...req.body}; // copia de lo que mandó el formulario
-	//borra los datos que solo debe hace el server, viene de la idea de seguridad de claude
+	//! viene de la idea de seguridad 
 	delete valores._id;
 	delete valores.id; // el id es el de la URL, no se puede cambiar
 	delete valores.passwordHash;
@@ -362,8 +376,24 @@ async function updateData(coleccion, id, req, res){
 		}
 	}
 
+	if (coleccion == "usuarios"){ //^ el admin corrige los datos de alguien del personal 
+		if (valores.email != undefined){
+			valores.email = String(valores.email).toLowerCase();
+			let otro = await db.collection("usuarios").findOne({email: valores.email, id: {$ne: id}}); // $ne: que no sea ella misma
+			//! viene de la misma idea de $in que me dio claude y de la página de mongoDB (https://www.mongodb.com/es/docs/manual/reference/mql/query-predicates/comparison/)
+			if (otro != null)
+				return res.status(409).json({message: "Ya existe una cuenta con ese correo."});
+		}
+		if (valores.estanciaId != undefined)
+			valores.estanciaId = valores.estanciaId ? Number(valores.estanciaId) : null;
+	}
+
+	if (coleccion == "estancias"){
+		delete valores.numero; // el número es el id de la estancia, si cambia se pierden sus infantes y su personal
+	}
+
 	if (coleccion == "infantes"){
-		// estos los pone el servidor, no el formulario, viene de la idea de mejora de seguridad de claude
+		//! estos los pone el servidor, no el formulario, viene de la idea de mejora de seguridad de claude
 		delete valores.usuario;
 		delete valores.freg;
 		delete valores.ebdiAnt;
@@ -417,7 +447,6 @@ async function updateData(coleccion, id, req, res){
 			//y para el estatus de servicio use esta idea: 1 = inscrito, 2 = egresado por edad, 3 = baja, salió antes
 		}
 	}
-
 	await db.collection(coleccion).updateOne({id: id}, {"$set": valores});
 	let data = await db.collection(coleccion).findOne({id: id}, {projection: {_id:0, passwordHash:0}});
 	res.json(data);
