@@ -67,3 +67,6 @@ Abrir el navegador y aceptar el certificado. Después:
 ```bash
 npm run dev
 ```
+### Accesibilidad
+
+- Análisis de accesibilidad de nuestra app: [_\[link\]_](https://docs.google.com/document/d/1tehf1Rb4Iv3OR65pX4j3TyJdHFMzrBfzPlq0zYQkirQ/edit?usp=sharing)
