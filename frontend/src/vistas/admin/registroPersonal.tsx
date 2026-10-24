@@ -1,14 +1,14 @@
 import {
   List, DataTable, Create, Edit, SimpleForm, Toolbar, SaveButton, CreateButton,
   TextInput, NumberInput, SelectInput, BooleanInput, PasswordInput, ReferenceInput, FormDataConsumer,
-  SelectField, BooleanField, ReferenceField, TextField, required, email,
+  SelectField, BooleanField, ReferenceField, TextField, EditButton, required, email,
 } from "react-admin";
 import { regiones } from "../estancia/lista";
 
 //* el admin da de alta al personal y las estancias
 export const PersonalList = () => (
   <List title="Personal" actions={<CreateButton label="Agregar persona" />}>
-    <DataTable rowClick="edit" bulkActionButtons={false}>
+    <DataTable rowClick="edit" bulkActionButtons={false} aria-label="Personal">
       <DataTable.Col source="nombre" label="Nombre" />
       <DataTable.Col source="email" label="Correo" />
       <DataTable.Col source="rol" label="Rol">
@@ -29,6 +29,9 @@ export const PersonalList = () => (
       <DataTable.Col source="region" label="Región" />
       <DataTable.Col source="activo" label="Activa">
         <BooleanField source="activo" />
+      </DataTable.Col>
+      <DataTable.Col label="Acciones">
+        <EditButton /> 
       </DataTable.Col>
     </DataTable>
   </List>
@@ -106,12 +109,15 @@ export const PersonalEdit = () => (
 
 export const EstanciaList = () => (
   <List title="Estancias" actions={<CreateButton label="Agregar estancia" />}>
-    <DataTable rowClick="edit" bulkActionButtons={false}>
+    <DataTable rowClick="edit" bulkActionButtons={false} aria-label="Estancias">
       <DataTable.Col source="numero" label="EBDI" />
       <DataTable.Col source="nombre" label="Nombre" />
       <DataTable.Col source="tipo" label="Tipo" />
       <DataTable.Col source="estado" label="Estado" />
       <DataTable.Col source="region" label="Región" />
+      <DataTable.Col label="Acciones">
+        <EditButton /> 
+      </DataTable.Col>
     </DataTable>
   </List>
 );
