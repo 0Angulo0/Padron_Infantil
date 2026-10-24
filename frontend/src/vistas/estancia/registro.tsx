@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Create, SimpleForm, TextInput, DateInput, SelectInput, NumberInput, required, maxLength, 
+  Create, SimpleForm, TextInput, DateInput, SelectInput, NumberInput, required, maxLength, Title,
   minValue, maxValue, usePermissions,
 } from "react-admin";
 import { Typography, Alert, Button } from "@mui/material";
@@ -13,7 +13,8 @@ export const InfanteCreate = () => {
   if (clave) {
     return (
       <div>
-        <Typography variant="h1">Infante registrado</Typography>
+        <Title title="Infante registrado" />
+        <Typography variant="h1" component="h2">Infante registrado</Typography>
         <Alert severity="success" role="status">
           Clave de acceso de la familia: {clave}. Solo se muestra esta vez, anótala.
         </Alert>

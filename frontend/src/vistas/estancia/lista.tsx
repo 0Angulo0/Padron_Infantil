@@ -122,7 +122,7 @@ export const InfanteList = () => (
   <>
   <AvisoPendientes />
   <List filter={{ activo: 1 }} actions={<CreateButton label="Registrar infante" />}>
-    <DataTable rowClick="show" bulkActionButtons={false}>
+    <DataTable rowClick="show" bulkActionButtons={false} aria-label="Infantes de mi estancia">
       <DataTable.Col source="matricula" label="Matrícula" />
       <DataTable.Col source="nombre" label="Nombre" />
       <DataTable.Col source="paterno" label="Apellido paterno" />

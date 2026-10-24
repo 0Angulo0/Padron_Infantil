@@ -18,7 +18,7 @@ const Acciones = () => (
 
 export const ResumenList = () => (
   <List title="Estancias de mi región" filters={filtros} actions={<Acciones />}>
-    <DataTable bulkActionButtons={false}>
+    <DataTable bulkActionButtons={false} aria-label="Estancias de mi región">
       <DataTable.Col source="numero" label="EBDI" />
       <DataTable.Col source="nombre" label="Nombre" />
       <DataTable.Col source="estado" label="Estado" />
@@ -37,7 +37,7 @@ const infanteFiltros = [
 
 export const CoordinadorInfanteList = () => (
 <List title="Infantes de mi región" filter={{ activo: 1 }} filters={infanteFiltros}>
-      <DataTable rowClick="show" bulkActionButtons={false}>
+            <DataTable rowClick="show" bulkActionButtons={false} aria-label="Infantes de mi región">
       <DataTable.Col source="matricula" label="Matrícula" />
       <DataTable.Col source="ebdi" label="EBDI" />
       <DataTable.Col label="Región">
