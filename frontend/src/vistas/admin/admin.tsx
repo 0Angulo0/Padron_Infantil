@@ -1,12 +1,15 @@
 import {
-  List, DataTable, DateField, EditButton, 
+  List, DataTable, DateField, EditButton,
   Edit, SimpleForm, Toolbar, SaveButton,
-  TextInput, NumberInput, DateInput, SelectInput, required, maxLength,
+  TextInput, NumberInput, DateInput, SelectInput, required, maxLength, minValue, maxValue,
 } from "react-admin";
+import { RegionField, regiones } from "../estancia/lista";
 
 //* el admin ve y edita todo el padrón (tabla padron del sql)
 const filtros = [
   <NumberInput label="Matrícula" source="matricula" alwaysOn />,
+  <NumberInput label="EBDI" source="ebdi" />,
+  <SelectInput label="Región" source="region" choices={regiones} />,
   <SelectInput
     label="Región"
     source="region"
@@ -19,8 +22,6 @@ const filtros = [
     ]}
     alwaysOn
   />,
-  <NumberInput label="EBDI" source="ebdi" />,
-  <TextInput label="UR" source="ur" />,
 ];
 
 export const AdminInfanteList = () => (
@@ -31,7 +32,9 @@ export const AdminInfanteList = () => (
     <DataTable rowClick="show" bulkActionButtons={false} aria-label="Padrón de infantes">
       <DataTable.Col source="matricula" label="Matrícula" />
       <DataTable.Col source="ebdi" label="EBDI" />
-      <DataTable.Col source="ur" label="UR" />
+      <DataTable.Col label="Región">
+        <RegionField />
+      </DataTable.Col>
       <DataTable.Col source="nombre" label="Nombre" />
       <DataTable.Col source="paterno" label="Apellido paterno" />
       <DataTable.Col source="materno" label="Apellido materno" />
@@ -50,7 +53,6 @@ export const AdminInfanteEdit = () => (
   <Edit title="Editar infante">
     <SimpleForm warnWhenUnsavedChanges toolbar={<Toolbar><SaveButton /></Toolbar>}>
       <NumberInput source="matricula" label="Matrícula" validate={required()} />
-      <TextInput source="ur" label="UR" validate={maxLength(3)} />
       <NumberInput source="ebdi" label="EBDI" validate={required()} />
       <TextInput source="nombre" label="Nombre(s)" validate={required()} />
       <TextInput source="paterno" label="Apellido paterno" validate={required()} />
@@ -58,10 +60,25 @@ export const AdminInfanteEdit = () => (
       <SelectInput
         source="genero"
         label="Sexo"
-        choices={[{ id: "F", name: "Femenino" }, { id: "M", name: "Masculino" }]}
+        choices={[{ id: "M", name: "Mujer" }, { id: "H", name: "Hombre" }]} // como en la CURP y en la tabla padron del socio
         validate={required()}
       />
       <TextInput source="curp" label="CURP" validate={maxLength(18)} />
+      {/* al guardar, el backend vuelve a calcular la talla blanco familiar con estas dos y el sexo */}
+      <NumberInput
+        source="tallaMama"
+        label="Talla de la mamá (cm)"
+        step={0.1}
+        helperText="Vacía si no se conoce (se usa 162 cm, la media en México)."
+        validate={[minValue(110, "Mínimo 110 cm"), maxValue(220, "Máximo 220 cm")]}
+      />
+      <NumberInput
+        source="tallaPapa"
+        label="Talla del papá (cm)"
+        step={0.1}
+        helperText="Vacía si no se conoce (se usa 170 cm, la media en México)."
+        validate={[minValue(110, "Mínimo 110 cm"), maxValue(220, "Máximo 220 cm")]}
+      />
       <DateInput source="fnac" label="Fecha de nacimiento" validate={required()} />
       <SelectInput source="baja" label="Baja" choices={[{ id: 0, name: "No" }, { id: 1, name: "Sí" }]} />
       <SelectInput
