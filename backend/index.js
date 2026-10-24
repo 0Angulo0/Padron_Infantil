@@ -102,9 +102,12 @@ async function alcance(sesion, coleccion){
 		if (coleccion == "infantes"){
 			return {id: {$in: infanteIds}}; //cualquiera de la lista de los ids 
 			/*
-			!  mi línea anterior era "return {id: infanteIds};" y no se mostraba ningun infante, le pregunte a claude 
+			! Equipo: hice la función de alcance para poder filtrar los datos que podía ver cada rol, mi línea anterior 
+			! era "return {id: infanteIds};" y no se mostraba ningun infante,  entonces le pregunte a claude 
 			! el porqué y me sugirió el uso de {$in: infanteIds} que le dice a mongodb que busque en todos los ids que
 			! vienen en la lista, luego igual lo encontre en la página de mongodb y me fui guiando con eso 
+			! Claude: ajusto la función para agregar los operadores $in en cada return y me recomendo el link de la 
+			! documentación de MongoDB para que pudiera seguir guiandome de eso
 			*/
 		}
 		if (coleccion == "mediciones"){
@@ -261,8 +264,12 @@ async function claveAccesoNueva(){
 //* crea un registro nuevo con los datos del formulario (req.body)
 async function createData(coleccion, req, res){
 	let valores = {...req.body}; // copia de lo que mandó el formulario
-	//! se borran los datos que solo pone el server, para evitar que alguien le mueva.
-	//! viene de la idea sugerida por claude para mejorar la seguridad
+	//! Equipo: hizo las funciones del index con ayuda de los links de documentación, códigos vistos
+	//! en clase y foros, pero queriamos mejorar la seguridad porque no estabamos seguros que estuvieramos
+	//! siguiendo muchas buenas practicas.
+	//! Claude: se le pidió que recomendará como mejorar la seguridad del código siguiendo buenas prácticas
+	//! a un nivel sencillo, nos recomendó que se borran los datos que solo pone el server, para evitar que alguien le mueva.
+	//! esta idea se replico en varias funciones del código
 	delete valores._id; 
 	delete valores.id; // lo pone nuevoId
 	delete valores.passwordHash; 
@@ -341,7 +348,7 @@ async function createData(coleccion, req, res){
 			valores.tutorId = tutor.id;
 			respuestaExtra.claveAcceso = tutor.claveAcceso; // la clave solo se regresa esta vez, para entregársela a la familia
 		}
-		delete valores.tutorNombre; //! idea de mejorar seguridad de claude
+		delete valores.tutorNombre; //! viene de la idea de mejorar seguridad de claude
 		delete valores.tutorCiudad;
 	} else if (coleccion == "estancias"){
 		valores.id = valores.numero; // el id de la estancia es su número de EBDI
@@ -350,7 +357,7 @@ async function createData(coleccion, req, res){
 	}
 
 	await db.collection(coleccion).insertOne(valores);  //guarda
-	delete valores._id;  //! se borran los datos que no se deben mandar al navegador
+	delete valores._id;  //! viene de la idea de mejorar la seguridad, por eso se borran los datos que no se deben mandar al navegador
 	delete valores.passwordHash;
 	res.json({...valores, ...respuestaExtra});  //regresa la info necesaria unicamente
 }
@@ -381,6 +388,7 @@ async function updateData(coleccion, id, req, res){
 			valores.email = String(valores.email).toLowerCase();
 			let otro = await db.collection("usuarios").findOne({email: valores.email, id: {$ne: id}}); // $ne: que no sea ella misma
 			//! viene de la misma idea de $in que me dio claude y de la página de mongoDB (https://www.mongodb.com/es/docs/manual/reference/mql/query-predicates/comparison/)
+			//! aqui aunque ya no se le pregunto a la ia como moverle, seguimos la idea que ya nos había dado y el link que me proporciono
 			if (otro != null)
 				return res.status(409).json({message: "Ya existe una cuenta con ese correo."});
 		}

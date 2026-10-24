@@ -27,9 +27,11 @@ function mesesEntre(desde: string, hasta: string) {
   return dias / 30.4375;
 }
 /*
-! se le pidió ayuda a Claude para darle formato a las tablas de referencia de la CDC (cdc.json):
-! a partir de los archivos oficiales de la CDC (wtstat, hcageinf y wtageinf) se armó cada tabla como
-! { "1": niño, "2": niña } con filas { x, p3, p50, p97 }, y se revisó que los valores coincidieran con los .xls
+! /*
+! IA (Claude): se usó para dar formato a las tablas CDC de datos/cdc.json ({ "1": niño, "2": niña } 
+! con filas { x, p3, p50, p97 }), proponer las funciones percentilEn, calcularImc, tablaImc y estadoNutricional
+! El equipo: descargó y eligió los archivos oficiales de la CDC, revisó los valores contra los .xls,
+! integró las funciones en las gráficas, simplificó el código y lo probó con los datos de prueba.
 */
 //* valor de un percentil en un punto x que no viene exacto en la tabla (interpolacion)
 function percentilEn(tabla: Fila[], x: number, percentil: "p3" | "p50" | "p97") {

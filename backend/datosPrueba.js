@@ -10,9 +10,17 @@ async function ponerData(){
 	let client = new MongoClient(process.env.DB);
 	await client.connect();
 	let db = client.db();
-	let hash = await hashear("Padron#2026");  //contraseña prueba para todos los usuarios y tutores xd
+	let hash = await hashear("Padron#2026");  //contraseña prueba para todos los usuarios y tutores 
 
-const datos = {  //^ dummy data hecha con IA (claude: https://claude.ai/share/19b8fe8e-7ed2-4bcd-8167-aeb9cda4a481)
+/*
+! dummy data hecha con IA (claude: https://claude.ai/share/19b8fe8e-7ed2-4bcd-8167-aeb9cda4a481)
+! Equipo: le mande el prompt e hice las colecciones siguiendo el sql que nos brindo el socio formador y lo que yo quería lograr,
+! aqui es importante mencionar que no se copio tal cual el sql que no dio el socio formador ya que muchas variables no logramos entenderlas
+! pero las que si se copiaron con el mismo nombre.
+! Claude: hizo los datos inventados, variando un poco en la información para que pudieramos testear difernetes casos en la plataforma 
+*/
+
+const datos = {  
     estancias: [
         {id: 35, numero: 35, nombre: "EBDI 35 Coyoacán", tipo: "Propia", estado: "Ciudad de México", region: "Centro"},
         {id: 12, numero: 12, nombre: "EBDI 12 Puebla", tipo: "Contratadas", estado: "Puebla", region: "Centro"},
