@@ -1,5 +1,6 @@
 /*
 ? funciones de seguridad
+! para este código tome como base el codigo hecho por Jorge Rodriguez Ruiz (https://github.com/JorgeR-TEC/TC2007B-421-202624)
 */
 
 const argon2 = require("argon2");
