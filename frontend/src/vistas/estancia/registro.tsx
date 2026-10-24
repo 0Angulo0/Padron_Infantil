@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Create, SimpleForm, TextInput, DateInput, SelectInput, NumberInput, required, maxLength, minValue, maxValue, usePermissions, Title
+  Create, SimpleForm, TextInput, DateInput, SelectInput, NumberInput, required, maxLength, Title,
+  minValue, maxValue, usePermissions,
 } from "react-admin";
 import { Typography, Alert, Button } from "@mui/material";
 
@@ -29,7 +30,6 @@ export const InfanteCreate = () => {
       mutationOptions={{ onSuccess: (data: any) => setClave(data.claveAcceso) }}
     >
       <SimpleForm>
-        {/* a la estancia el backend le pone su ebdi, el admin la tiene que elegir */}
         {permissions == "admin" && <NumberInput source="ebdi" label="EBDI" validate={required()} />}
         <NumberInput source="matricula" label="Matrícula" validate={required()} />
         <TextInput source="nombre" label="Nombre(s)" validate={required()} />
@@ -39,11 +39,10 @@ export const InfanteCreate = () => {
         <SelectInput
           source="genero"
           label="Sexo"
-          choices={[{ id: "M", name: "Mujer" }, { id: "H", name: "Hombre" }]} // como en la CURP y en la tabla padron del socio
+          choices={[{ id: "M", name: "Mujer" }, { id: "H", name: "Hombre" }]} 
           validate={required()}
         />
         <TextInput source="curp" label="CURP" validate={maxLength(18)} />
-        {/* con estas dos el backend calcula la talla blanco familiar; si no se conocen se usa la media de México */}
         <NumberInput
           source="tallaMama"
           label="Talla de la mamá (cm)"
