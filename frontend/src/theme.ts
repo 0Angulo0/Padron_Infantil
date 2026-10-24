@@ -61,9 +61,23 @@ export const tema: RaThemeOptions = {
     h2: { fontSize: "1.25rem", fontWeight: 700, color: colores.guinda },
     button: { textTransform: "none", fontWeight: 600, fontSize: "1rem" },
   },
-  components: {
+    components: {
     ...defaultTheme.components,
     MuiCssBaseline: { styleOverrides: { "*:focus-visible": { outline: `3px solid ${colores.foco}`, outlineOffset: "2px" } } },
+    //^ botones de al menos 44 x 44 px para que sean fáciles de tocar (WCAG 2.5.5)
+    MuiButton: { styleOverrides: { root: { minHeight: 44 } } },
+    MuiIconButton: { styleOverrides: { root: { minWidth: 44, minHeight: 44 } } },
+    //^ borde inferior de los campos más oscuro para que se distinga del fondo (contraste 3:1, WCAG 1.4.11)
+    //^ se repite el backgroundColor de react-admin porque al definir MuiFilledInput se reemplaza el suyo
+    MuiFilledInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "rgba(0, 0, 0, 0.04)",
+          "&::before": { borderBottomColor: colores.grisOscuro },
+          "&:hover:not(.Mui-disabled, .Mui-error)::before": { borderBottomColor: colores.negro },
+        },
+      },
+    },
   },
 
 }

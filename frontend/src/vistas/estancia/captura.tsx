@@ -2,15 +2,13 @@ import {
   Create, SimpleForm, ReferenceInput, SelectInput, DateInput, NumberInput,
   required, minValue, maxValue,
 } from "react-admin";
-import { Typography } from "@mui/material";
+
 
 const hoy = new Date().toLocaleDateString("en-CA");
 
 export const MedicionCreate = () => (
   <Create title="Capturar medidas" redirect={() => "infantes"}>
     <SimpleForm>
-      <Typography variant="h1">Capturar medidas</Typography>
-
       {/* solo los inscritos: a un niño dado de baja el backend no le deja capturar medidas */}
       <ReferenceInput source="infanteId" reference="infantes" filter={{ activo: 1 }} perPage={500}>        
         <SelectInput

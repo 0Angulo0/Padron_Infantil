@@ -29,7 +29,7 @@ export const AdminInfanteList = () => (
     title="Padrón de infantes"
     filters={filtros}
   >
-    <DataTable rowClick="show" bulkActionButtons={false}>
+    <DataTable rowClick="show" bulkActionButtons={false} aria-label="Padrón de infantes">
       <DataTable.Col source="matricula" label="Matrícula" />
       <DataTable.Col source="ebdi" label="EBDI" />
       <DataTable.Col label="Región">

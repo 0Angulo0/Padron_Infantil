@@ -37,13 +37,15 @@ const Barra = () => {
   return (
     <AppBar>
       <img src={logo} alt="Gobierno de México" style={{ height: 40, marginRight: 16 }} />
-      <TitlePortal />
+      <TitlePortal component="h1" />
       <span style={{ marginRight: 8, fontWeight: 600 }}>{NOMBRE_ROL[permissions] ?? ""}</span>
     </AppBar>
   );
 };
 
 export const Layout = ({ children }: { children: ReactNode }) => (
+  //? minWidth 0: sin esto los contenedores crecen al ancho de la tabla y se desliza toda la página;
+  //? así solo se desliza la tabla dentro de su tarjeta
   <RALayout
     menu={MenuPorRol}
     appBar={Barra}
@@ -51,6 +53,8 @@ export const Layout = ({ children }: { children: ReactNode }) => (
       minWidth: 0,
       "& .RaLayout-appFrame, & .RaLayout-contentWithSidebar, & .RaLayout-content, & .RaList-main": { minWidth: 0 },
       "& .MuiCard-root.RaList-content": { overflowX: "auto" }, // la tarjeta de la tabla (dos clases para ganarle al estilo de react-admin)
+      "& .RaShow-main, & .RaCreate-main, & .RaEdit-main": { minWidth: 0 }, // curvas y formularios tampoco se salen de la pantalla
+      "& .MuiCardContent-root": { overflowX: "auto" }, 
     }}
   >
     {children}
