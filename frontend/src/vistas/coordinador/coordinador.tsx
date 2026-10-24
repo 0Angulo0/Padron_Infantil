@@ -1,6 +1,6 @@
 import {
   List, DataTable, TopToolbar, FilterButton, ExportButton,
-  TextInput, NumberInput, DateField,
+  TextInput, NumberInput, DateField, ShowButton
 } from "react-admin";
 import { RegionField } from "../estancia/lista";
 
@@ -49,6 +49,10 @@ export const CoordinadorInfanteList = () => (
       <DataTable.Col source="fnac" label="Nacimiento">
         <DateField source="fnac" locales="es-MX" options={{ timeZone: "UTC" }} />
       </DataTable.Col>
+      <DataTable.Col label="Acciones">
+        <ShowButton label="Ver datos y medidas" />
+      </DataTable.Col>
+
     </DataTable>
   </List>
 );
