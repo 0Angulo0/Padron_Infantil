@@ -331,7 +331,6 @@ function Graficas() {
 
   return (
     <div>
-      <Typography variant="h1">{infante.nombre} {infante.paterno} {infante.materno}</Typography>
       <Card sx={{ mb: 2 }}>
         <CardContent>
           <Typography variant="h2">Datos del infante</Typography>

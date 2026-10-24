@@ -27,7 +27,6 @@ const Encabezado = () => {
   if (!infante) return null;
   return (
     <div>
-      <Typography variant="h1">Mover de estancia o dar de baja</Typography>
       <Typography>
         {infante.nombre} {infante.paterno} {infante.materno} · Matrícula {infante.matricula} · EBDI actual: {infante.ebdi}
       </Typography>
