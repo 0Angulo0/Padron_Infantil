@@ -37,7 +37,7 @@ const Barra = () => {
   return (
     <AppBar>
       <img src={logo} alt="Gobierno de México" style={{ height: 40, marginRight: 16 }} />
-      <TitlePortal />
+      <TitlePortal component="h1" />
       <span style={{ marginRight: 8, fontWeight: 600 }}>{NOMBRE_ROL[permissions] ?? ""}</span>
     </AppBar>
   );
