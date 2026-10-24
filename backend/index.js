@@ -89,7 +89,6 @@ function leerTalla(valor){
 	}
 	return talla;
 }
-// TODO: mover a i18n
 const ERROR_TALLA = "La talla de la mamá y del papá debe estar entre 110 y 220 cm, o dejarse vacía si no se conoce.";
 
 //* filtrado por rol: regresa un filtro de mongoDB con lo que la sesión tiene permitido ver
@@ -298,7 +297,6 @@ async function createData(coleccion, req, res){
 		if (infante == null)  // no existe el infante dentro de las estancias que tiene la sesion
 			return res.sendStatus(403); //prohibido
 		if (infante.activo != 1) // egresado o dado de baja, ya no se le toman medidas
-		//TODO: poner en i18n
 			return res.status(409).json({message: "Este infante ya no está inscrito, no se le pueden capturar medidas."});
 		valores.registradoPor = req.sesion.id; //para el bd
 		valores.ebdi = infante.ebdi; // estancia donde se tomó la medición 
