@@ -1,7 +1,7 @@
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 import type { TranslationMessages } from 'react-admin';
 
-export const spanishMessages = {
+export const spanishMessages: TranslationMessages = {
     ra: {
         action: {
             add: 'Agregar',
@@ -36,6 +36,15 @@ export const spanishMessages = {
             toggle_theme: 'Cambiar modo claro/oscuro',
             update_application: 'Recargar aplicación',
             add_filter: 'Añadir filtro',
+            clear_array_input: 'Vaciar la lista',
+            clone: 'Duplicar',
+            remove_filter: 'Quitar este filtro',
+            remove_all_filters: 'Quitar todos los filtros',
+            search_columns: 'Buscar columnas',
+            expand: 'Expandir',
+            move_up: 'Subir',
+            move_down: 'Bajar',
+            select_columns: 'Columnas',
         },
         boolean: {
             true: 'Sí',
@@ -67,6 +76,14 @@ export const spanishMessages = {
             password: {
                 toggle_visible: 'Ocultar contraseña',
                 toggle_hidden: 'Mostrar contraseña',
+            },
+            file: {
+                upload_several: 'Arrastra algunos archivos para subirlos, o haz clic para elegirlos.',
+                upload_single: 'Arrastra un archivo para subirlo, o haz clic para elegirlo.',
+            },
+            image: {
+                upload_several: 'Arrastra algunas imágenes para subirlas, o haz clic para elegirlas.',
+                upload_single: 'Arrastra una imagen para subirla, o haz clic para elegirla.',
             },
         },
         message: {
@@ -101,6 +118,7 @@ export const spanishMessages = {
                 'Algunos cambios no se guardaron. ¿Estás seguro de que quieres ignorarlos?',
             yes: 'Sí',
             placeholder_data_warning: 'Problema de red: no se pudo actualizar la información.',
+            clear_array_input: '¿Seguro que quieres vaciar toda la lista?',
         },
         navigation: {
             clear_filters: 'Quitar filtros',
@@ -136,6 +154,7 @@ export const spanishMessages = {
             sign_in: 'Iniciar sesión',
             sign_in_error: 'Error de autenticación, por favor intenta de nuevo',
             logout: 'Cerrar sesión',
+            email: 'Correo electrónico',
         },
         notification: {
             updated: 'Elemento actualizado |||| %{smart_count} elementos actualizados',
@@ -156,102 +175,124 @@ export const spanishMessages = {
         },
         validation: {
             required: 'Obligatorio',
+            minLength: 'Debe tener al menos %{min} caracteres',
+            maxLength: 'Debe tener %{max} caracteres o menos',
+            minValue: 'Debe ser al menos %{min}',
+            maxValue: 'Debe ser %{max} o menos',
+            number: 'Debe ser un número',
+            email: 'Debe ser un correo válido',
+            oneOf: 'Debe ser uno de: %{options}',
+            regex: 'Debe tener un formato específico: %{pattern}',
+            unique: 'Ya existe, debe ser único',
+        },
+        saved_queries: {
+            label: 'Búsquedas guardadas',
+            query_name: 'Nombre de la búsqueda',
+            new_label: 'Guardar búsqueda actual...',
+            new_dialog_title: 'Guardar búsqueda actual como',
+            remove_label: 'Quitar búsqueda guardada',
+            remove_label_with_name: 'Quitar búsqueda "%{name}"',
+            remove_dialog_title: '¿Quitar búsqueda guardada?',
+            remove_message: '¿Seguro que quieres quitar esta búsqueda de tu lista?',
+            help: 'Filtra la lista y guarda esta búsqueda para después',
+        },
+        guesser: {
+            empty: {
+                title: 'No hay datos para mostrar',
+                message: 'Revisa tu proveedor de datos',
+            },
+        },
+        configurable: {
+            customize: 'Personalizar',
+            configureMode: 'Configurar esta página',
+            inspector: {
+                title: 'Inspector',
+                content: 'Pasa el cursor sobre los elementos para configurarlos',
+                reset: 'Restablecer configuración',
+                hideAll: 'Ocultar todo',
+                showAll: 'Mostrar todo',
+            },
+            Datagrid: {
+                title: 'Tabla',
+                unlabeled: 'Columna sin nombre #%{column}',
+            },
+            SimpleForm: {
+                title: 'Formulario',
+                unlabeled: 'Campo sin nombre #%{input}',
+            },
+            SimpleList: {
+                title: 'Lista',
+                primaryText: 'Texto principal',
+                secondaryText: 'Texto secundario',
+                tertiaryText: 'Texto terciario',
+            },
         },
     },
-    //? llaves propias para el texto de dashborad,
-    //? que no se traduce solo por ser componentes mui
-    dashboard: {
-        welcome: {
-            title: 'Bienvenido al panel de administración',
-            subtitle: 'Lorem ipsum sic dolor amet...',
-        },
-    },
-    //? llaves propias para los errores de autorizacion,
-    //? que no se traducen solas por ser componentes mui
-    auth: {
-        login_failed: 'Usuario o contraseña incorrectos',
-        invalid_credentials: 'Credenciales inválidas, por favor intenta de nuevo',
-        session_expired: 'Tu sesión ha expirado',
-        auth_required: 'Debes iniciar sesión para continuar',
-    },
+    //? nombres de las colecciones y sus campos, react-admin los usa en títulos y
+    //? en los campos que no tienen label escrito en la vista
     resources: {
-        posts: {
-            name: 'Publicación |||| Publicaciones',
+        infantes: {
+            name: 'Infante |||| Infantes',
             fields: {
-                id: 'ID',
-                userId: 'Usuario',
-                title: 'Título',
-                body: 'Contenido',
-                q: 'Buscar',
+                matricula: 'Matrícula',
+                nombre: 'Nombre(s)',
+                paterno: 'Apellido paterno',
+                materno: 'Apellido materno',
+                genero: 'Sexo',
+                curp: 'CURP',
+                fnac: 'Fecha de nacimiento',
+                freg: 'Fecha de registro',
+                ebdi: 'EBDI',
+                activo: 'Activo',
+                baja: 'Baja',
+                fBaja: 'Fecha de baja',
+                motivoBaja: 'Motivo de baja',
+                ebdiAnt: 'EBDI anterior',
+                tallaMama: 'Talla de la mamá (cm)',
+                tallaPapa: 'Talla del papá (cm)',
+                tallaBlancoFamiliar: 'Talla blanco familiar (cm)',
+                ultimaMedicion: 'Última medición',
             },
         },
-        users: {
-            name: 'Usuario |||| Usuarios',
+        mediciones: {
+            name: 'Medición |||| Mediciones',
             fields: {
-                id: 'ID',
-                name: 'Nombre',
-                username: 'Usuario',
-                email: 'Correo electrónico',
-                'address.street': 'Calle',
-                'address.suite': 'Interior',
-                'address.city': 'Ciudad',
-                'address.zipcode': 'Código postal',
-                phone: 'Teléfono',
-                website: 'Sitio web',
-                'company.name': 'Empresa',
-                'company.catchPhrase': 'Eslogan',
-                q: 'Buscar',
+                infanteId: 'Infante',
+                fecha: 'Fecha de medición',
+                peso: 'Peso (kg)',
+                talla: 'Talla (cm)',
+                perimetroCefalico: 'Perímetro cefálico (cm)',
             },
         },
-        comments: {
-            name: 'Comentario |||| Comentarios',
+        estancias: {
+            name: 'Estancia |||| Estancias',
             fields: {
-                id: 'ID',
-                postId: 'Publicación',
-                name: 'Nombre',
-                email: 'Correo electrónico',
-                body: 'Comentario',
-                q: 'Buscar',
+                numero: 'Número de EBDI',
+                nombre: 'Nombre',
+                tipo: 'Tipo',
+                estado: 'Estado',
+                region: 'Región',
             },
         },
-        albums: {
-            name: 'Álbum |||| Álbumes',
+        usuarios: {
+            name: 'Persona del personal |||| Personal',
             fields: {
-                id: 'ID',
-                userId: 'Usuario',
-                title: 'Título',
-                q: 'Buscar',
+                nombre: 'Nombre completo',
+                email: 'Correo',
+                rol: 'Rol',
+                estanciaId: 'Estancia',
+                region: 'Región',
+                activo: 'Cuenta activa',
             },
         },
-        photos: {
-            name: 'Foto |||| Fotos',
+        tutores: {
+            name: 'Tutor |||| Tutores',
             fields: {
-                id: 'ID',
-                albumId: 'Álbum',
-                title: 'Título',
-                url: 'URL',
-                thumbnailUrl: 'Miniatura',
-                q: 'Buscar',
-            },
-        },
-        todos: {
-            name: 'Tarea |||| Tareas',
-            fields: {
-                id: 'ID',
-                userId: 'Usuario',
-                title: 'Título',
-                completed: 'Completada',
-                q: 'Buscar',
+                nombre: 'Padre, madre o tutor',
+                ciudad: 'Ciudad',
             },
         },
     },
 };
 
-export const i18nProvider = polyglotI18nProvider(
-    // ra-i18n-polyglot solo acepta TranslationMessages (todas las llaves
-    // oficiales), pero en runtime funciona bien con un subconjunto: si
-    // alguna llave que quitamos llegara a pedirse, react-admin muestra
-    // la llave tal cual en vez de tronar.
-    () => spanishMessages as unknown as TranslationMessages,
-    'es',
-);
+export const i18nProvider = polyglotI18nProvider(() => spanishMessages, 'es');

@@ -61,5 +61,9 @@ export const tema: RaThemeOptions = {
     h2: { fontSize: "1.25rem", fontWeight: 700, color: colores.guinda },
     button: { textTransform: "none", fontWeight: 600, fontSize: "1rem" },
   },
+  components: {
+    ...defaultTheme.components,
+    MuiCssBaseline: { styleOverrides: { "*:focus-visible": { outline: `3px solid ${colores.foco}`, outlineOffset: "2px" } } },
+  },
 
 }
