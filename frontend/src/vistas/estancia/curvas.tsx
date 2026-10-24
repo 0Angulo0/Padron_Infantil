@@ -62,6 +62,31 @@ function tablaImc(tallaEdad: Fila[], pesoTalla: Fila[]) {
   return tabla;
 }
 
+//* estado nutricional con la medición más reciente (HU-10/18)
+function estadoNutricional(lista: any[], fnac: string, sexo: "1" | "2") {
+  if (lista.length == 0) return "Sin mediciones";
+  const ultima = lista[lista.length - 1]; // la más reciente
+
+  // primero: IMC para la edad
+  let tabla = tablaImc(cdc.tallaEdad[sexo], cdc.pesoTalla[sexo]);
+  let x = mesesEntre(fnac, ultima.fecha);
+  let y = calcularImc(ultima.peso, ultima.talla);
+
+  // si su edad no está en esa tabla: peso para la talla
+  if (x < tabla[0].x || x > tabla[tabla.length - 1].x) {
+    tabla = cdc.pesoTalla[sexo];
+    x = ultima.talla;
+    y = ultima.peso;
+  }
+
+  // si tampoco está en esa tabla
+  if (x < tabla[0].x || x > tabla[tabla.length - 1].x) return "No se puede evaluar con las tablas disponibles";
+
+  if (y < percentilEn(tabla, x, "p3")) return "Bajo peso";
+  if (y > percentilEn(tabla, x, "p97")) return "Riesgo de sobrepeso";
+  return "Peso adecuado";
+}
+
 //* un elemento de la leyenda: una mini línea igual a la de la gráfica y su texto
 //^ guiones: el mismo patrón que borderDash en la gráfica ("10 5" = 10 de línea y 5 de espacio). Vacío = línea continua
 function ElementoLeyenda({ color, guiones, grosor, rombo, texto }: { color: string; guiones: string; grosor: number; rombo: boolean; texto: string }) {
@@ -234,6 +259,8 @@ function Graficas() {
     sexo = "2";
   }
 
+  const estado = estadoNutricional(lista, infante.fnac, sexo);
+
   //^ textos de los datos del niño
   let region = "—";
   if (estancia && estancia.region) {
@@ -315,6 +342,7 @@ function Graficas() {
           </Typography>
           <Typography>Estatus: {infante.activo == 1 ? "Inscrito" : "Ya no está inscrito"}</Typography>
           <Typography>Talla blanco familiar: {tallaBlanco}</Typography>
+          <Alert severity="info" role="status" sx={{ mt: 1 }}>Estado nutricional: {estado}</Alert>
         </CardContent>
       </Card>
       <Card sx={{ mb: 2 }}>
