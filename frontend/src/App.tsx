@@ -1,5 +1,5 @@
 /*
-! los códigos de vistas, app.tsx, index.tsx, layout.tsx y theme.tsx tomaron como base los códigos de
+! los códigos de vistas, app.tsx, layout.tsx y theme.tsx tomaron como base los códigos de
 ! los tutoriales de react-admin (https://marmelab.com/react-admin/Tutorial.html)
 */
 import { Admin, Resource, CustomRoutes, Login, LoginForm } from "react-admin"; 

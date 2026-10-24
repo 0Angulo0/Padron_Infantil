@@ -50,7 +50,7 @@ export const Layout = ({ children }: { children: ReactNode }) => (
     sx={{
       minWidth: 0,
       "& .RaLayout-appFrame, & .RaLayout-contentWithSidebar, & .RaLayout-content, & .RaList-main": { minWidth: 0 },
-      "& .MuiCard-root.RaList-content": { overflowX: "auto" }, // la tarjeta de la tabla (dos clases para ganarle al estilo de react-admin)
+      "& .MuiCard-root.RaList-content": { overflowX: "auto" }, // la tarjeta de la tabla 
     }}
   >
     {children}
