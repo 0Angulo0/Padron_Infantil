@@ -1,10 +1,14 @@
-import { Admin, Resource, CustomRoutes, Login, LoginForm } from "react-admin"; // ← NUEVO: Login, LoginForm
+/*
+! los códigos de vistas, app.tsx, layout.tsx y theme.tsx tomaron como base los códigos de
+! los tutoriales de react-admin (https://marmelab.com/react-admin/Tutorial.html)
+*/
+import { Admin, Resource, CustomRoutes, Login, LoginForm } from "react-admin"; 
 import { Route } from "react-router-dom";
 import { Alert } from "@mui/material";
 import { Layout } from "./Layout";
 import { dataProvider } from "./proveedores/dataProvider";
 import { tema } from "./theme";
-import logo from "./recursos/Logo_gobierno2026.jpeg"; // ← NUEVO
+import logo from "./recursos/Logo_gobierno2026.jpeg"; 
 import InfanteIcon from "@mui/icons-material/ChildCare";
 import TutorIcon from "@mui/icons-material/FamilyRestroom";
 import CoordinadorIcon from "@mui/icons-material/Assessment";
@@ -28,12 +32,10 @@ import { authProvider } from "./proveedores/authProvider";
 import { i18nProvider } from "./proveedores/i18nProvider";
 
 //* pantallas de cada rol, si no está en su rol no aparece
-//? las curvas son el show de cada infante, se abren dando clic en la fila
 const captura = (
   <Resource name="mediciones" options={{ label: "Captura de medidas" }} create={MedicionCreate} />
 );
 
-//? mover de estancia o dar de baja: solo estancia y admin (el backend también lo revisa)
 const movimiento = (
   <CustomRoutes>
     <Route path="/infantes/:id/movimiento" element={<MoverEbdi />} />
@@ -47,7 +49,7 @@ const pantallasPorRol = (rol: string) => {
         name="infantes"
         options={{ label: "Mi hija o hijo" }}
         list={TutorList}
-        show={InfanteCurvas} // la familia ve las mismas curvas que la estancia (sin los botones, que dependen del rol)
+        show={InfanteCurvas} // la familia ve las mismas curvas que la estancia
         icon={TutorIcon}
       />
     );
@@ -130,7 +132,6 @@ const LoginConLogo = () => (
   >
         <img src={logo} alt="Gobierno de México" style={{ display: "block", width: 260, margin: "16px auto 0" }}/>
     <LoginForm />
-    {/* aviso para las familias*/}
     <Alert severity="info" sx={{ m: 2, mt: 0, maxWidth: 400 }}> 
       ¿Eres madre, padre o tutor y es tu primera vez? Escribe tu clave de acceso (ID-…) en Usuario y también en
       Contraseña.

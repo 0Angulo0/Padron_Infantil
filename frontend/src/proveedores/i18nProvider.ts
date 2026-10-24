@@ -1,3 +1,5 @@
+//! para este código tome como base el codigo de react admin (https://marmelab.com/react-admin/Translation.html)
+
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 import type { TranslationMessages } from 'react-admin';
 

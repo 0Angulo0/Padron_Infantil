@@ -1,3 +1,7 @@
+/*
+! los datos fueron tomados de la CDC (https://www.cdc.gov/growthcharts/cdc-data-files.htm)
+*/
+
 import "chart.js/auto";
 import { Line } from "react-chartjs-2";
 import { Show, TopToolbar, CreateButton, useRecordContext, useGetList, useGetOne, usePermissions } from "react-admin";
@@ -22,7 +26,11 @@ function mesesEntre(desde: string, hasta: string) {
   const dias = milisegundos / (1000 * 60 * 60 * 24);
   return dias / 30.4375;
 }
-
+/*
+! se le pidió ayuda a Claude para darle formato a las tablas de referencia de la CDC (cdc.json):
+! a partir de los archivos oficiales de la CDC (wtstat, hcageinf y wtageinf) se armó cada tabla como
+! { "1": niño, "2": niña } con filas { x, p3, p50, p97 }, y se revisó que los valores coincidieran con los .xls
+*/
 //* valor de un percentil en un punto x que no viene exacto en la tabla (interpolacion)
 function percentilEn(tabla: Fila[], x: number, percentil: "p3" | "p50" | "p97") {
   for (let i = 0; i < tabla.length - 1; i++) {
@@ -37,7 +45,6 @@ function percentilEn(tabla: Fila[], x: number, percentil: "p3" | "p50" | "p97") 
 }
 
 //* IMC = peso (kg) / talla (m) al cuadrado, con un decimal
-// TODO: pasarlo a back por seguridad
 function calcularImc(peso: number, tallaCm: number) {
   const tallaMetros = tallaCm / 100;
   return unDecimal(peso / (tallaMetros * tallaMetros));
@@ -88,7 +95,6 @@ function estadoNutricional(lista: any[], fnac: string, sexo: "1" | "2") {
 }
 
 //* un elemento de la leyenda: una mini línea igual a la de la gráfica y su texto
-//^ guiones: el mismo patrón que borderDash en la gráfica ("10 5" = 10 de línea y 5 de espacio). Vacío = línea continua
 function ElementoLeyenda({ color, guiones, grosor, rombo, texto }: { color: string; guiones: string; grosor: number; rombo: boolean; texto: string }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 8, marginRight: 20 }}>
@@ -138,7 +144,7 @@ export function Grafica({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
     curvaP97.push({ x: referencia[i].x, y: referencia[i].p97 });
   }
 
-  //^ las medidas del niño que caben en la tabla, ordenadas de menor a mayor x para que la línea no se cruce
+  //^ las medidas del niño que caben en la tabla
   const medidasNino: Punto[] = [];
   for (let i = 0; i < puntos.length; i++) {
     if (puntos[i].x >= inicioTabla && puntos[i].x <= finTabla) {
@@ -147,13 +153,13 @@ export function Grafica({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
   }
   medidasNino.sort(function (a, b) { return a.x - b.x; });
 
-  //^ la medición más reciente (las mediciones vienen ordenadas por fecha, la última es la más nueva)
+  //^ las mediciones vienen ordenadas por fecha, la última es la más nueva
   let ultimo = null;
   if (puntos.length > 0) {
     ultimo = puntos[puntos.length - 1];
   }
 
-  //^ aviso de abajo y descripción para lectores de pantalla (WCAG 1.1.1): lo mismo que se ve, en texto
+  //^ aviso de abajo y descripción para lectores de pantalla
   let aviso;
   let resumen;
   if (ultimo == null) {
@@ -204,11 +210,9 @@ export function Grafica({ titulo, ejeX, ejeY, referencia, puntos, lectura }: Pro
             options={{
               maintainAspectRatio: false,
               plugins: {
-                //^ la leyenda de Chart.js no dibuja los guiones ni los puntos, por eso usamos la nuestra (Leyenda, abajo)
                 legend: { display: false },
               },
               scales: {
-                //^ el eje x se queda en el rango de la tabla, así las curvas no se aplastan
                 x: { type: "linear", min: inicioTabla, max: finTabla, title: { display: true, text: ejeX } },
                 y: { title: { display: true, text: ejeY } },
               },
@@ -235,13 +239,12 @@ function Graficas() {
     ebdi = infante.ebdi;
   }
 
-  //^ sus mediciones, de la más vieja a la más nueva (por defecto react-admin solo trae 25, por eso 1000)
   const { data: mediciones } = useGetList(
     "mediciones",
     { filter: { infanteId: infanteId }, sort: { field: "fecha", order: "ASC" }, pagination: { page: 1, perPage: 1000 } },
     { enabled: infante != null },
   );
-  //^ su estancia, para mostrar la región (UR)
+  //^ su estancia, para mostrar la región
   const { data: estancia } = useGetOne("estancias", { id: ebdi }, { enabled: infante != null });
 
   if (!infante) {
@@ -262,11 +265,11 @@ function Graficas() {
   const estado = estadoNutricional(lista, infante.fnac, sexo);
 
   //^ textos de los datos del niño
-  let region = "—";
+  let region = "-";
   if (estancia && estancia.region) {
     region = estancia.region;
   }
-  let tallaBlanco = "—";
+  let tallaBlanco = "̣-";
   if (infante.tallaBlancoFamiliar != null) {
     tallaBlanco = infante.tallaBlancoFamiliar + " cm";
     if (infante.tallaMama == null || infante.tallaPapa == null) {
@@ -274,7 +277,7 @@ function Graficas() {
     }
   }
 
-  //^ puntos de cada gráfica y filas del historial (el historial va de la más nueva a la más vieja)
+  //^ puntos de cada gráfica y filas del historial 
   const puntosPesoTalla: Punto[] = [];
   const puntosTallaEdad: Punto[] = [];
   const puntosImc: Punto[] = [];
@@ -307,7 +310,7 @@ function Graficas() {
     filasHistorial.unshift(fila); // unshift lo pone al principio, así la más nueva queda arriba
   }
 
-  //^ el historial: un aviso si no hay mediciones, o la tabla
+  //^ un aviso si no hay mediciones, o la tabla
   let historial;
   if (lista.length == 0) {
     historial = <Alert severity="info" role="status">Todavía no hay mediciones</Alert>;
@@ -378,7 +381,7 @@ function Graficas() {
   );
 }
 
-//* botón "Tomar medidas": solo el personal de estancia captura
+//* solo el personal de estancia captura
 function TomarMedidas() {
   const infante = useRecordContext();
   const { permissions } = usePermissions();
@@ -394,7 +397,7 @@ function TomarMedidas() {
   );
 }
 
-//* botón al formulario de mover de estancia o dar de baja (estancia y admin, solo si sigue inscrito)
+//* botón al formulario de mover de estancia o dar de baja 
 function MoverOBaja() {
   const infante = useRecordContext();
   const { permissions } = usePermissions();

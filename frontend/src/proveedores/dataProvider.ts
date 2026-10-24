@@ -1,3 +1,7 @@
+/*
+! para este código tome como base el codigo hecho por Jorge Rodriguez Ruiz (https://github.com/JorgeR-TEC/TC2007B-421-202624)
+*/
+
 import { fetchUtils } from "react-admin";  // herramienta de react para hacer peticiones al server
 import jsonServerProvider from "ra-data-json-server";  // hace las peticiones
 
